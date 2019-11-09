@@ -244,11 +244,11 @@
   (name "GND3") (value "GND")
   (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
- (component 434bf697-7022-4c8e-aa2a-a1fd54d34107
+ (component 33c1ff7c-2fe9-486b-af1a-267f2d757f76
   (lib_component 8076f6be-bfab-4fc1-9772-5d54465dd7e1)
   (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)
   (lib_device none)
-  (name "GND7") (value "GND")
+  (name "GND9") (value "GND")
   (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
  (component 4410ccc2-9a56-47cf-9ac3-e420e22a5d03
@@ -256,13 +256,6 @@
   (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)
   (lib_device none)
   (name "GND8") (value "GND")
-  (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
- )
- (component 493d86d2-aa1a-4133-91c0-3508801b3d67
-  (lib_component 8076f6be-bfab-4fc1-9772-5d54465dd7e1)
-  (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)
-  (lib_device none)
-  (name "GND6") (value "GND")
   (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
  (component 4d1bdf8f-0b1f-441e-bb5f-df4d8f35876f
@@ -314,14 +307,6 @@
   (lib_device none)
   (name "VCC9") (value "150V")
   (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net 9102bbe9-c6db-47a7-99dc-c011ecd3355a))
- )
- (component a2270941-1379-4952-a7be-4d48cdf8c0e2
-  (lib_component 6eedad0b-5b41-4233-9b7b-8be1ee8527e0)
-  (lib_variant 1517597d-d036-4ecd-95a9-a7b68f953a52)
-  (lib_device none)
-  (name "S1") (value "Count Up")
-  (signal 33616b61-b981-452a-a672-e564bfabf6b1 (net b29b7d3f-bb89-4650-9cce-a3e39e153463))
-  (signal 4c215f30-3492-4a32-94d3-7f3541afb7db (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
  (component a51e87f6-adce-46bd-9345-736d7978164e
   (lib_component b0b17c93-0f41-4b1b-9033-0b48339da9bc)
@@ -424,6 +409,15 @@
   (name "VCC4") (value "3V3")
   (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net d42f6704-1a89-4d32-8470-735457b74007))
  )
+ (component c6e7f6ca-3765-4b05-9c9b-f2da7388716b
+  (lib_component a07aabe2-4127-40a9-9976-db1d6090c667)
+  (lib_variant d960b91a-2744-41fc-ba89-39e8190e421d)
+  (lib_device ca7ac353-cbf0-40ad-9a86-2a6da38b836c)
+  (name "S1") (value "{{PARTNUMBER or DEVICE}}")
+  (signal 8560ca39-2ba7-4b3c-8d57-d0f52d64dc6f (net b29b7d3f-bb89-4650-9cce-a3e39e153463))
+  (signal c54aa7b2-bd4f-4c58-aa3f-af6ec5f87aeb (net eb137732-6377-4ebb-a115-431be062c7f8))
+  (signal f5ccf68e-d1fc-4854-a0a6-9930c58334e9 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
+ )
  (component ca358253-6b51-442a-a3c3-88dc4617301f
   (lib_component 8fe5f7cd-ba7f-4bf4-965e-14d35ed8c89b)
   (lib_variant 3db8e6c6-c9df-4270-ad31-75eb8648f955)
@@ -448,14 +442,6 @@
   (lib_device none)
   (name "VCC1") (value "12V")
   (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net c166dd61-7969-4ab1-9c11-e70d6139552e))
- )
- (component fe1c2b93-dc4f-43d6-bfd5-2bc530fe0005
-  (lib_component 6eedad0b-5b41-4233-9b7b-8be1ee8527e0)
-  (lib_variant 1517597d-d036-4ecd-95a9-a7b68f953a52)
-  (lib_device none)
-  (name "S2") (value "Count Down")
-  (signal 33616b61-b981-452a-a672-e564bfabf6b1 (net eb137732-6377-4ebb-a115-431be062c7f8))
-  (signal 4c215f30-3492-4a32-94d3-7f3541afb7db (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
 
 )
