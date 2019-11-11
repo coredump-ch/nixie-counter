@@ -436,12 +436,14 @@
   (name "GND2") (value "GND")
   (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
- (component dd439a6f-7300-46a4-b578-c85645f80ad9
-  (lib_component 58c3c6cd-11eb-4557-aa3f-d3e05874afde)
-  (lib_variant afb86b45-68ec-47b6-8d96-153d73567228)
+ (component ff780004-fdf9-46d7-8628-efa5371e2c22
+  (lib_component 1a9ebb83-b9f9-4140-bd90-cdc1da0f5412)
+  (lib_variant 937e6426-a2bb-404a-9703-96f84ed897fd)
   (lib_device none)
-  (name "VCC1") (value "12V")
-  (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net c166dd61-7969-4ab1-9c11-e70d6139552e))
+  (name "J1") (value "Barrel Jack\nCenter Pos")
+  (signal 19bdd065-2f85-4ab2-af32-20f33eaca8e0 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
+  (signal 778d677e-687d-4606-9656-143bd2bc723d (net c166dd61-7969-4ab1-9c11-e70d6139552e))
+  (signal fc7daf07-0d53-4a6c-974d-a4844b92eb94 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
 
 )

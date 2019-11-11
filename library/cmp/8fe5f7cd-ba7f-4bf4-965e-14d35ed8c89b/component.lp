@@ -3,7 +3,7 @@
  (description "DC power supply module for Nixie Tubes.\n\nIn: 12–24V\nOut: 85–235V")
  (keywords "nch6100hv,nixie,dc,power supply")
  (author "Danilo Bargen")
- (version "0.1")
+ (version "0.3")
  (created 2019-09-23T20:29:55Z)
  (deprecated false)
  (category 30643e64-b131-4eb5-b956-ceb3cb02413a)
