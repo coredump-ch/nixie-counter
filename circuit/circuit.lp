@@ -287,6 +287,20 @@
   (name "VCC7") (value "150V")
   (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net 9102bbe9-c6db-47a7-99dc-c011ecd3355a))
  )
+ (component 5e0a17fb-71e0-421c-a82e-8ee8f4f32f75
+  (lib_component 58c3c6cd-11eb-4557-aa3f-d3e05874afde)
+  (lib_variant afb86b45-68ec-47b6-8d96-153d73567228)
+  (lib_device none)
+  (name "VCC14") (value "12V")
+  (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net c166dd61-7969-4ab1-9c11-e70d6139552e))
+ )
+ (component 6dc7592e-ff14-43a3-b014-ce705160886c
+  (lib_component 8076f6be-bfab-4fc1-9772-5d54465dd7e1)
+  (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)
+  (lib_device none)
+  (name "GND7") (value "GND_SUPPLY")
+  (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 961e416a-d054-4b6b-a52b-0bf03b85472d))
+ )
  (component 76a29600-ac86-48de-a4da-d25c84f4b264
   (lib_component 2e12e239-ce84-45c0-b7f4-4ccd6962d3b1)
   (lib_variant 2adc938d-734b-4247-90ba-1b5e7de747b2)
@@ -314,6 +328,13 @@
   (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)
   (lib_device none)
   (name "GND6") (value "GND")
+  (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
+ )
+ (component 82deadcd-62b1-4e9f-a44a-02ce1faa5165
+  (lib_component 8076f6be-bfab-4fc1-9772-5d54465dd7e1)
+  (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)
+  (lib_device none)
+  (name "GND10") (value "GND")
   (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
  )
  (component 850a5aba-8d8e-4538-89e6-4c45539f536a
@@ -350,6 +371,13 @@
   (lib_device none)
   (name "VCC9") (value "150V")
   (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net 9102bbe9-c6db-47a7-99dc-c011ecd3355a))
+ )
+ (component a4341c7b-b19a-4da6-a865-5d275b5c0a60
+  (lib_component 58c3c6cd-11eb-4557-aa3f-d3e05874afde)
+  (lib_variant afb86b45-68ec-47b6-8d96-153d73567228)
+  (lib_device none)
+  (name "VCC15") (value "3V3")
+  (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net d42f6704-1a89-4d32-8470-735457b74007))
  )
  (component a51e87f6-adce-46bd-9345-736d7978164e
   (lib_component b0b17c93-0f41-4b1b-9033-0b48339da9bc)
@@ -452,6 +480,15 @@
   (name "VCC6") (value "3V3")
   (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net d42f6704-1a89-4d32-8470-735457b74007))
  )
+ (component bcb3cd4b-7ec3-418b-8706-99f696e78999
+  (lib_component 54ad6c40-6cc8-43c6-b7b9-105be65de1da)
+  (lib_variant 9b047f44-b127-4509-8401-ce56f8a8f577)
+  (lib_device 64407a7b-0979-4c32-a776-5dc53f9d1e8a)
+  (name "U7") (value "{{PARTNUMBER or DEVICE}}\nLDO")
+  (signal 64f4d07d-edc7-4947-ae00-879e03e04894 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
+  (signal 7038e7c8-6036-4677-aaa9-cb1a2a98a92f (net d42f6704-1a89-4d32-8470-735457b74007))
+  (signal 870a2123-7262-4567-ad14-f07ffe18d80b (net c166dd61-7969-4ab1-9c11-e70d6139552e))
+ )
  (component c11eccff-2103-4111-ba9e-b2fc288310b6
   (lib_component 58c3c6cd-11eb-4557-aa3f-d3e05874afde)
   (lib_variant afb86b45-68ec-47b6-8d96-153d73567228)
@@ -479,12 +516,26 @@
   (signal b1d3a9bf-e38b-4883-b156-a504411646d0 (net 9102bbe9-c6db-47a7-99dc-c011ecd3355a))
   (signal fc11de0c-5253-4c7d-b027-20a74775d634 (net 961e416a-d054-4b6b-a52b-0bf03b85472d))
  )
+ (component d76fe834-ec45-4052-a384-92ace11f496d
+  (lib_component 58c3c6cd-11eb-4557-aa3f-d3e05874afde)
+  (lib_variant afb86b45-68ec-47b6-8d96-153d73567228)
+  (lib_device none)
+  (name "VCC13") (value "12V")
+  (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net c166dd61-7969-4ab1-9c11-e70d6139552e))
+ )
  (component dc99d153-3afa-4e87-993c-683ff50045fd
   (lib_component 8076f6be-bfab-4fc1-9772-5d54465dd7e1)
   (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)
   (lib_device none)
   (name "GND2") (value "GND")
   (signal ff161c97-29a5-43aa-a9ae-3ca7a66982ce (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
+ )
+ (component e6db7335-604d-417c-b418-6d9aca24b512
+  (lib_component 58c3c6cd-11eb-4557-aa3f-d3e05874afde)
+  (lib_variant afb86b45-68ec-47b6-8d96-153d73567228)
+  (lib_device none)
+  (name "VCC12") (value "12V")
+  (signal 1d893320-f811-4a79-b64e-cc23d749d394 (net c166dd61-7969-4ab1-9c11-e70d6139552e))
  )
  (component ff780004-fdf9-46d7-8628-efa5371e2c22
   (lib_component 1a9ebb83-b9f9-4140-bd90-cdc1da0f5412)
