@@ -1,9 +1,9 @@
 (librepcb_device 92456f46-613c-4de5-8b65-caa103250d5a
- (name "Nixie Tube IN-12B")
+ (name "IN-12B")
  (description "IN-12B Nixie Tube by Reflektor / Sovtek.\n\nThe \"B\" variant has a decimal dot.")
  (keywords "nixie,tube,in-12b,in12b,reflektor,sovtek")
  (author "Danilo Bargen")
- (version "0.1")
+ (version "0.1.1")
  (created 2019-09-23T19:55:09Z)
  (deprecated false)
  (category 0d3a9561-9a14-4622-98b2-d787b8b7478c)
