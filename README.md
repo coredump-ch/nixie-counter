@@ -35,6 +35,12 @@ Input power is supplied at 12V. The nixie power supply converts that to ~150V.
 
 Two LDOs convert the 12V to 5V (for the nixie drivers) and 3.3V (for the rest).
 
+**Status LEDs**
+
+There's a yellow LED to indicate that the controller has power and runs the
+correct firmware, and a green LED to indicate whether the ESP-01 module is
+connected to the WiFi or not.
+
 ## Editing
 
 This is a [LibrePCB](https://librepcb.org) project!
