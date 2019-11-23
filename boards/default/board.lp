@@ -1,7 +1,7 @@
 (librepcb_board cfaec193-39cb-4766-881d-db9368be8cff
  (name "default")
  (default_font "newstroke.bene")
- (grid (type dots) (interval 0.3175) (unit millimeters))
+ (grid (type dots) (interval 0.635) (unit millimeters))
  (layers (inner 0))
  (design_rules
   (name "LibrePCB Default Design Rules")
@@ -420,6 +420,12 @@
    (to (junction deb2fa5c-af90-40fa-bd08-0bee458094fe))
   )
  )
+ (netsegment 11e5ab01-b153-48af-9f86-5b6427d18a95
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 2b7c8360-337d-4fb1-a976-840aeba3aabd
+   (position 34.925 71.12) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
  (netsegment 141efd43-3c51-4b8a-a55e-0af13fd2bb55
   (net 1d7e576d-c885-4e6c-ab7b-301901d12613)
   (via f13ffc97-fc13-4f0f-b314-4a8c8bf26efe
@@ -539,6 +545,12 @@
   (trace dded8213-d940-4eba-8c59-ce06523476e1 (layer top_cu) (width 0.5)
    (from (device 76a29600-ac86-48de-a4da-d25c84f4b264) (pad b6f8a077-e97c-4e3e-8478-4d99a555931b))
    (to (junction 18864b4e-ce59-4485-85f4-e2f0c51e0648))
+  )
+ )
+ (netsegment 200f0a66-a6ce-4c8f-ae85-db824819f571
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 4d2c86fa-4c7d-4e01-93dc-09afa629dd21
+   (position 76.2 39.37) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment 21fdf25a-2a02-4f0d-b822-7fc3fed19be0
@@ -686,6 +698,12 @@
    (to (junction 80b56054-055c-4971-8725-5c039d8f44c2))
   )
  )
+ (netsegment 2a39ea2e-f27e-4474-b595-6a1f133d7b07
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 510e0729-b896-4567-be3f-a1d80be1f648
+   (position 76.2 33.655) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
  (netsegment 32257b4a-5646-4f9a-bfc1-937b292d8188
   (net b112686b-1106-4aa4-8ef8-adc8a6127f5f)
   (junction 1d62e86b-55c4-4adb-83fc-cb2e52134010 (position 34.92544 36.51296))
@@ -765,6 +783,12 @@
   (trace d6570eca-fa04-489f-9921-e512d878656a (layer bot_cu) (width 0.25)
    (from (junction a4311a94-880f-4926-846f-956feda6f030))
    (to (junction d8fdfcd6-a56c-44ed-a4fa-4843864d16c2))
+  )
+ )
+ (netsegment 40283c2a-f804-4f70-98c2-ddcb20cf23b7
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 1edcf776-ea1a-4623-86bd-992bcf2ad6e0
+   (position 76.2 40.64) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment 41bac715-f579-4b40-9c81-9fcebe0c4836
@@ -1020,6 +1044,12 @@
    (to (junction 39703fd5-f802-4a7e-98b3-c6f2e4abd1a1))
   )
  )
+ (netsegment 556cc17f-ff7d-49cc-bae7-6f1dd7c227cb
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 2b4355bd-1154-4bcb-80a4-23ab7ad9f3d5
+   (position 59.69 78.105) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
  (netsegment 58e745e0-17d5-49a4-af08-9f12e8b55db9
   (net 53effcab-4cb5-4fbc-b97f-9c4d3626cb00)
   (junction 4291adb0-38bf-4533-af0c-bfc1fd77aa2b (position 52.38816 21.81816))
@@ -1072,6 +1102,12 @@
   (trace d35afc2a-2750-4d69-a2c8-884006e0b38b (layer top_cu) (width 0.5)
    (from (device a9688f4d-a22c-4dc4-816d-147ebc208050) (pad 085fefea-d52c-49af-b6fb-e8f1ea3d9468))
    (to (junction b02cdcfe-c933-4593-b4d8-9a9e0616e62f))
+  )
+ )
+ (netsegment 61673c74-74fc-423a-98d4-a2980bdbe71a
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 4924025e-0228-4ce1-b88d-9592ad822c46
+   (position 67.945 36.195) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment 61745f86-2e10-41cc-8251-0d7a83e10942
@@ -1149,6 +1185,12 @@
    (to (junction bc8ec2ff-36da-4902-b81b-a0857185c5d5))
   )
  )
+ (netsegment 691c421f-783a-4593-a5e9-7a0e856a341b
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 382b4b93-87a1-4752-9008-5e5bb2c36331
+   (position 33.655 75.565) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
  (netsegment 6b330f6e-5e8b-46b9-9c95-9e69afd66007
   (net 590d38fd-33cb-4f54-9c88-75a1d7518313)
   (junction eb7b7ce7-3f56-419c-9bf6-765c8bce8a22 (position 67.037993 42.421191))
@@ -1216,6 +1258,12 @@
   (trace eaddc897-d4b0-4975-badf-37a75178ecce (layer top_cu) (width 0.5)
    (from (junction 93baaf3d-0c06-4ba7-b516-11a33afe93d6))
    (to (junction 9c0d3bde-3323-4dad-b71c-f7419d03cff6))
+  )
+ )
+ (netsegment 6bde1db6-7f06-4612-970c-68c1922c46b9
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 68162740-f6c7-4c95-9613-3f7aac1c5fa3
+   (position 74.295 28.575) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment 6d6d7625-7c5e-4288-93b6-96e4b199e9a4
@@ -1391,6 +1439,18 @@
   (trace e6280da8-d4fa-4f87-9854-43ef1f67d67c (layer bot_cu) (width 0.5)
    (from (junction a6d4a327-55f3-4a20-b24f-daf0a6aac332))
    (to (junction cb3ded88-b4cb-410a-a8af-17e3e1eb81f9))
+  )
+ )
+ (netsegment 7d6bb90e-45ad-4bfb-8685-828aa9fcf445
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via fac429d8-0a82-436e-a053-1dd420fa086c
+   (position 36.195 71.12) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
+ (netsegment 7df27bcd-2e21-4007-b1fd-0a9c8389e474
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 4b754c3a-9ef6-4a5b-8068-9de9597eebd6
+   (position 58.42 78.105) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment 83d190bd-7ed5-4a07-a7e7-80d7e14bbe1e
@@ -1630,6 +1690,12 @@
   (trace e7ed9413-d17a-470c-99c0-43bb725fb186 (layer top_cu) (width 0.5)
    (from (junction 5e15420f-572f-4fd6-a7a4-94e986cc9784))
    (to (junction fd7bcc7d-e89a-4064-97ea-470b683f7f04))
+  )
+ )
+ (netsegment 87965e5d-b4cf-49c6-a0ad-b24c99846421
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 81853e53-4b7c-4434-98b7-bf79dfdceeeb
+   (position 67.945 37.465) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment 89fea537-5841-4717-b7ee-f8806c9c7501
@@ -2102,6 +2168,18 @@
    (to (junction 59c9edcf-3c4d-4102-a752-8b052e406ed0))
   )
  )
+ (netsegment ad7232b4-e232-4715-a4b7-56cbb1980e8a
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via da1e916b-df0f-4bfb-875c-e47fbc5b8278
+   (position 59.69 68.58) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
+ (netsegment b160dab3-a52f-4cd9-92a4-9751c5ebd989
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via b9b437e6-0d51-4bf2-bf26-c0a4645e08be
+   (position 76.2 32.385) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
  (netsegment b975abe6-8dc9-43c8-9156-804c317206d3
   (net 5842abf8-15b7-4f6f-8369-cbc98e424eaf)
   (junction 0228e16b-9679-41db-b348-2f4907f5c8c6 (position 23.177792 71.4384))
@@ -2184,6 +2262,12 @@
    (to (junction 4bc56f5c-2852-4195-b4cc-9967cf940ba9))
   )
  )
+ (netsegment bf678698-cd83-4a8a-8e15-a8bdb9b7229f
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via e072a988-9bfc-40a3-bcc9-c5b88467bf16
+   (position 36.195 75.565) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
  (netsegment c5fbee5d-9341-49cc-84ee-fb45998eb1bb
   (net a2f474bb-4611-459e-9cb1-3eb47c898e63)
   (junction 2e9372f9-d528-4687-a1be-0c27fa833ea0 (position 24.130304 27.960304))
@@ -2194,6 +2278,12 @@
   (trace fe0ce96a-a41a-4190-b119-2b0c56e5c0d4 (layer top_cu) (width 0.5)
    (from (device aa31cb34-48f2-45ae-96d7-e2cac27e8895) (pad 0accf05f-c83a-464e-8bb5-001103b8d16b))
    (to (junction 2e9372f9-d528-4687-a1be-0c27fa833ea0))
+  )
+ )
+ (netsegment d497bd54-0f7e-4456-b6b6-eeac5633a8fb
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 1975cd9b-25cc-4aa9-8796-8a9dbb523339
+   (position 58.42 68.58) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment d5793fc5-9d0c-4b65-b1a9-a52cfe66f333
@@ -2317,6 +2407,18 @@
    (to (junction 951bef7e-2623-40e0-ae24-24464799e3eb))
   )
  )
+ (netsegment de9d084e-5f81-40b5-87ec-d0cebc5817bf
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 7b40405f-f2b8-413f-a56d-8dc100dcef86
+   (position 57.15 78.105) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
+ (netsegment e5b91e9f-4951-4e9c-8b6b-9261381bf638
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via 69bb5806-5402-4f1e-b789-62e52b1eef63
+   (position 76.2 38.1) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
  (netsegment e69a84aa-52e8-4a23-987e-0b4137efe082
   (net 3cce18f5-4cda-4c74-8635-a5ef2dcf69d5)
   (junction 63728a37-bd59-4293-b90c-c481442213a4 (position 25.717824 42.228032))
@@ -2384,6 +2486,24 @@
   (trace cd5f89b3-e5fb-48ea-8523-621f9101311f (layer bot_cu) (width 0.5)
    (from (device 0d81fec4-c453-4af4-9839-810504b49dc4) (pad 2c9c2c78-5889-4827-b42e-64bc4bb1ef56))
    (to (junction 64e55437-4ea1-4b35-bcb3-607ff4f30a3c))
+  )
+ )
+ (netsegment f7c8a223-3377-49dc-b552-e7e689b98a02
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via d8195c43-3c49-4180-a782-40344668d62c
+   (position 34.925 75.565) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
+ (netsegment fa4756fc-cdf0-4c3f-a48b-c8ffe9bd93cd
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via a1244108-866e-43a7-97ed-6b721bcd5b4b
+   (position 73.66 29.21) (size 0.7) (drill 0.3) (shape round)
+  )
+ )
+ (netsegment fcbc0121-ffec-40a4-b0ca-6be76a42a639
+  (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073)
+  (via d89006fa-f203-4591-b4d5-5bae76d8a4e9
+   (position 67.945 34.925) (size 0.7) (drill 0.3) (shape round)
   )
  )
  (netsegment fed54d4f-e817-485e-b19e-fe01148b9d12
