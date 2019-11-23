@@ -1,0 +1,13 @@
+(librepcb_symbol 815c5c56-a489-4621-b663-672176ce1e10
+ (name "Logo Coredump")
+ (description "")
+ (keywords "logo,coredump")
+ (author "Jessy")
+ (version "0.1")
+ (created 2019-08-14T20:50:46Z)
+ (deprecated false)
+ (category 213bd44f-f375-41d8-8fdd-0652eb893e27)
+ (text fa5336b6-286a-4c8c-9922-2f430f950e19 (layer sym_values) (value "{{VALUE}}")
+  (align center center) (height 2.54) (position 0.0 0.0) (rotation 0.0)
+ )
+)

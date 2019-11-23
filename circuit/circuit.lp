@@ -356,6 +356,12 @@
   (signal cfd1b355-f90d-4802-aaae-f553593cfb4d (net b112686b-1106-4aa4-8ef8-adc8a6127f5f))
   (signal d4429f55-e0ad-489c-ab19-4c3a55fdf3ed (net 93f8b571-41cb-4f38-96c6-7bfbfb6b6b90))
  )
+ (component 78a98c36-2d95-46d0-87f7-b5981dc8eb19
+  (lib_component f6542150-82a2-4a67-aec2-8a08ce0c55d2)
+  (lib_variant 7a85c3f5-39d0-406e-abba-8393a7d27b56)
+  (lib_device 6fb62718-a818-4229-8370-11813c372305)
+  (name "L1") (value "Made At\nCoredump")
+ )
  (component 7bb65726-c581-4d9e-9bd6-9348262a7f85
   (lib_component 8076f6be-bfab-4fc1-9772-5d54465dd7e1)
   (lib_variant f09ad258-595b-4ee9-a1fc-910804a203ae)

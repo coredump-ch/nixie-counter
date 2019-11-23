@@ -1,7 +1,7 @@
 (librepcb_board cfaec193-39cb-4766-881d-db9368be8cff
  (name "default")
  (default_font "newstroke.bene")
- (grid (type dots) (interval 0.635) (unit millimeters))
+ (grid (type dots) (interval 0.3175) (unit millimeters))
  (layers (inner 0))
  (design_rules
   (name "LibrePCB Default Design Rules")
@@ -130,6 +130,16 @@
   (stroke_text 25e2970b-2ce5-43f1-93b5-7b978742a56d (layer top_values)
    (height 1.0) (stroke_width 0.2) (letter_spacing auto) (line_spacing auto)
    (align center top) (position 30.289008 44.449984) (rotation 270.0)
+   (auto_rotate true) (mirror false) (value "{{VALUE}}")
+  )
+ )
+ (device 78a98c36-2d95-46d0-87f7-b5981dc8eb19
+  (lib_device 6fb62718-a818-4229-8370-11813c372305)
+  (lib_footprint 82c6c361-8107-46af-82c6-ade21e9bcaaf)
+  (position 87.9475 23.8125) (rotation 0.0) (mirror false)
+  (stroke_text 2f9542ad-92f9-4228-b505-4bf735af2052 (layer top_stop_mask)
+   (height 1.0) (stroke_width 0.2) (letter_spacing auto) (line_spacing 1.48)
+   (align left center) (position 90.0475 23.8125) (rotation 0.0)
    (auto_rotate true) (mirror false) (value "{{VALUE}}")
   )
  )
@@ -2485,6 +2495,12 @@
   (vertex (position 100.0 80.0) (angle 0.0))
   (vertex (position 0.0 80.0) (angle 0.0))
   (vertex (position 0.0 0.0) (angle 0.0))
+ )
+
+ (stroke_text 4cac63ad-1030-41fa-b59f-14981b437dfa (layer top_stop_mask)
+  (height 1.3) (stroke_width 0.3) (letter_spacing auto) (line_spacing auto)
+  (align left bottom) (position 80.9625 26.9875) (rotation 0.0)
+  (auto_rotate true) (mirror false) (value "{{PROJECT}} {{VERSION}}")
  )
 
 )
