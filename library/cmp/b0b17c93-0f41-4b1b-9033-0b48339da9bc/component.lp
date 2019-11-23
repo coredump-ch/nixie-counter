@@ -8,7 +8,7 @@
  (deprecated false)
  (category e96d0dda-3100-4e68-8c33-e2a5bc80428b)
  (schematic_only false)
- (default_value "")
+ (default_value "Blue Pill")
  (prefix "U")
  (signal 519c0f5b-e730-4a00-9d48-cf4eb8620ecf (name "PA14_SWCLK") (role passive)
   (required false) (negated false) (clock false) (forced_net "")
