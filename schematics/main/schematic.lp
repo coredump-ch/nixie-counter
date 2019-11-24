@@ -77,6 +77,11 @@
   (lib_gate 0539fd52-890f-48af-97a9-bacfb79c9475)
   (position 20.32 121.92) (rotation 0.0) (mirror false)
  )
+ (symbol 2bd1505f-aeca-42bc-896a-48bf374f2854
+  (component bd8904c1-6e7f-438b-aebd-a547653b904a)
+  (lib_gate 2ce9d0aa-7afb-4196-8425-46c4e1c26313)
+  (position 116.84 7.62) (rotation 0.0) (mirror false)
+ )
  (symbol 316b286d-3a7d-40b8-bc4e-e6b75160cd3e
   (component f0020d12-b0cc-4f7c-b228-b698741f8b1b)
   (lib_gate f7aa65f2-55b5-45d7-a3e1-782e9f3266a8)
