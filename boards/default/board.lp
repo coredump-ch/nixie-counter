@@ -1,7 +1,7 @@
 (librepcb_board cfaec193-39cb-4766-881d-db9368be8cff
  (name "default")
  (default_font "newstroke.bene")
- (grid (type dots) (interval 0.3175) (unit millimeters))
+ (grid (type dots) (interval 0.635) (unit millimeters))
  (layers (inner 0))
  (design_rules
   (name "LibrePCB Default Design Rules")
@@ -2916,6 +2916,6 @@
 
  (hole 0630c3d9-812f-4864-90bc-ebd8b38803fe (diameter 2.5) (position 97.0 3.0))
  (hole 3e6ef05a-eed1-4cde-a0da-7c0ba65da4bb (diameter 2.5) (position 3.0 3.0))
- (hole a02419cd-9c72-48ca-be35-f4dc1ca0b4a0 (diameter 2.5) (position 58.1025 73.66))
+ (hole a02419cd-9c72-48ca-be35-f4dc1ca0b4a0 (diameter 2.5) (position 58.0 73.66))
 
 )
