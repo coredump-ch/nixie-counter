@@ -1,5 +1,11 @@
 # Nixie Counter
 
+## Screenshots
+
+![Top](output/v1/screenshot-top.png)
+
+![Bottom](output/v1/screenshot-bot.png)
+
 ## Description / Overview
 
 PCB for a physical "people now present" counter that sends it data directly to
