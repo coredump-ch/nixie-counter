@@ -1,6 +1,6 @@
 G04 --- HEADER BEGIN --- *
-%TF.GenerationSoftware,LibrePCB,LibrePCB,0.1.3-unstable*%
-%TF.CreationDate,2019-11-29T11:35:03*%
+%TF.GenerationSoftware,LibrePCB,LibrePCB,0.1.3*%
+%TF.CreationDate,2019-12-12T00:41:35*%
 %TF.ProjectId,Nixie Counter - default,cfaec193-39cb-4766-881d-db9368be8cff,v1*%
 %TF.Part,Single*%
 %FSLAX66Y66*%
@@ -436,5 +436,5 @@ X92311168Y10160064D03*
 X88811168Y14960064D03*
 X85811168Y10160064D03*
 G04 --- BOARD END --- *
-%TF.MD5,6cb05f7dd722fe22c24376af2949c70e*%
+%TF.MD5,8fcdd4c34be556a907fb1965dc858fd1*%
 M02*
