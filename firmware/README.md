@@ -1,0 +1,3 @@
+# `nixie-counter` firmware
+
+WIP
