@@ -15,11 +15,13 @@ use stm32f1xx_hal::{prelude::*, pac};
 use stm32f1xx_hal::delay::Delay;
 use stm32f1xx_hal::gpio::{Output, PushPull, gpiob};
 
-#[app(device = stm32f1::stm32f103)]
+#[app(device = stm32f1::stm32f103, peripherals = true)]
 const APP: () = {
-    // LEDs
-    static mut LED_PWR: gpiob::PB3<Output<PushPull>> = ();
-    static mut LED_WIFI: gpiob::PB4<Output<PushPull>> = ();
+    struct Resources {
+        // LEDs
+        led_pwr: gpiob::PB3<Output<PushPull>>,
+        led_wifi: gpiob::PB4<Output<PushPull>>,
+    }
 
     /// Initialization happens here.
     /// 
@@ -28,14 +30,14 @@ const APP: () = {
     /// and `device` variables, which are injected in the scope of init by the
     /// app attribute.
     #[init]
-    fn init() {
+    fn init(ctx: init::Context) -> init::LateResources {
         hprintln!("Initializing").unwrap();
 
         // Cortex-M peripherals
-        let core: rtfm::Peripherals = core;
+        let core: cortex_m::Peripherals = ctx.core;
 
         // Device specific peripherals
-        let device: pac::Peripherals = device;
+        let device: pac::Peripherals = ctx.device;
 
         // Get reference to peripherals
         let mut rcc = device.RCC.constrain();
@@ -88,8 +90,10 @@ const APP: () = {
         hprintln!("Init done").unwrap();
 
         // Assign resources
-        LED_PWR = led_pwr;
-        LED_WIFI = led_wifi;
+        init::LateResources {
+            led_pwr,
+            led_wifi,
+        }
     }
 
     // RTFM requires that free interrupts are declared in an extern block when
