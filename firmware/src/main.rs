@@ -8,6 +8,7 @@ extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to c
 // extern crate panic_itm; // logs messages over ITM; requires ITM support
 // extern crate panic_semihosting; // logs messages to the host stderr; requires a debugger
 
+use cortex_m_semihosting::hprintln;
 use embedded_hal::digital::v2::OutputPin;
 use rtfm::app;
 use stm32f1xx_hal::{prelude::*, pac};
@@ -28,6 +29,8 @@ const APP: () = {
     /// app attribute.
     #[init]
     fn init() {
+        hprintln!("Initializing").unwrap();
+
         // Cortex-M peripherals
         let core: rtfm::Peripherals = core;
 
@@ -37,7 +40,7 @@ const APP: () = {
         // Get reference to peripherals
         let mut rcc = device.RCC.constrain();
         let mut afio = device.AFIO.constrain(&mut rcc.apb2);
-        let gpioa = device.GPIOA.split(&mut rcc.apb2);
+        let mut gpioa = device.GPIOA.split(&mut rcc.apb2);
         let mut gpiob = device.GPIOB.split(&mut rcc.apb2);
         let mut flash = device.FLASH.constrain();
 
@@ -69,6 +72,20 @@ const APP: () = {
             led_wifi.set_low().unwrap();
             delay.delay_ms(blink_ms);
         }
+
+        // Initialize tubes
+        let mut tube1_a = gpioa.pa3.into_push_pull_output(&mut gpioa.crl);
+        let mut tube1_b = gpioa.pa1.into_push_pull_output(&mut gpioa.crl);
+        let mut tube1_c = gpioa.pa0.into_push_pull_output(&mut gpioa.crl);
+        let mut tube1_d = gpioa.pa2.into_push_pull_output(&mut gpioa.crl);
+
+        // Show number 3
+        tube1_a.set_high().unwrap();
+        tube1_b.set_high().unwrap();
+        tube1_c.set_low().unwrap();
+        tube1_d.set_low().unwrap();
+
+        hprintln!("Init done").unwrap();
 
         // Assign resources
         LED_PWR = led_pwr;
