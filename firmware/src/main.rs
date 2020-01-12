@@ -11,11 +11,14 @@ extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to c
 use cortex_m_semihosting::hprintln;
 use embedded_hal::digital::v2::OutputPin;
 use rtfm::app;
+use rtfm::cyccnt::{Instant, U32Ext};
 use stm32f1xx_hal::{prelude::*, pac};
-use stm32f1xx_hal::delay::Delay;
-use stm32f1xx_hal::gpio::{Edge, ExtiPin, Input, Output, PullUp, PushPull, gpioa, gpiob};
+use stm32f1xx_hal::gpio::{Input, Output, PullUp, PushPull, gpioa, gpiob};
 
-#[app(device = stm32f1::stm32f103, peripherals = true)]
+// How often the toggle switch should be polled
+const POLL_PERIOD: u32 = 48_000 * 50; // ~50ms, for testing purposes
+
+#[app(device = stm32f1::stm32f103, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
         // EXTI peripheral
@@ -36,12 +39,12 @@ const APP: () = {
     /// access to Cortex-M and device specific peripherals through the `core`
     /// and `device` variables, which are injected in the scope of init by the
     /// app attribute.
-    #[init]
+    #[init(schedule = [poll_buttons])]
     fn init(ctx: init::Context) -> init::LateResources {
         hprintln!("Initializing").unwrap();
 
         // Cortex-M peripherals
-        let core: cortex_m::Peripherals = ctx.core;
+        let mut core: rtfm::Peripherals = ctx.core;
 
         // Device specific peripherals
         let device: pac::Peripherals = ctx.device;
@@ -56,46 +59,29 @@ const APP: () = {
         // Disable JTAG to free up pins PA15, PB3 and PB4 for normal use 
         let (_pa15, pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
 
-        // Set up toggle inputs
-        let mut btn_up = gpioa.pa11.into_pull_up_input(&mut gpioa.crh);
-        let mut btn_dn = gpioa.pa8.into_pull_up_input(&mut gpioa.crh);
+        // Initialize (enable) the monotonic timer (CYCCNT)
+        core.DCB.enable_trace();
+        core.DWT.enable_cycle_counter();
 
-        // Enable toggle interrupts
-        macro_rules! enable_interrupt {
-            ($pin:expr) => {
-                $pin.make_interrupt_source(&mut afio);
-                $pin.enable_interrupt(&device.EXTI);
-                $pin.trigger_on_edge(&device.EXTI, Edge::FALLING);
-            }
-        }
-        enable_interrupt!(btn_up);
-        enable_interrupt!(btn_dn);
+        // Set up toggle inputs
+        let btn_up = gpioa.pa11.into_pull_up_input(&mut gpioa.crh);
+        let btn_dn = gpioa.pa8.into_pull_up_input(&mut gpioa.crh);
 
         // Clock configuration
-        let clocks = rcc
+        let _clocks = rcc
             .cfgr
             .use_hse(8.mhz())
             .sysclk(48.mhz())
             .pclk1(24.mhz())
             .freeze(&mut flash.acr);
 
-        // Set up delay provider
-        let mut delay = Delay::new(core.SYST, clocks);
+        // Schedule polling timer for toggle switch
+        ctx.schedule.poll_buttons(Instant::now()).unwrap();
 
         // Set up status LEDs and blink twice
         let mut led_pwr = pb3.into_push_pull_output(&mut gpiob.crl);
-        let mut led_wifi = pb4.into_push_pull_output(&mut gpiob.crl);
-        let blink_ms: u16 = 100;
-        for _ in 0..3 {
-            led_pwr.set_high().unwrap();
-            delay.delay_ms(blink_ms);
-            led_wifi.set_high().unwrap();
-            delay.delay_ms(blink_ms);
-            led_pwr.set_low().unwrap();
-            delay.delay_ms(blink_ms);
-            led_wifi.set_low().unwrap();
-            delay.delay_ms(blink_ms);
-        }
+        let led_wifi = pb4.into_push_pull_output(&mut gpiob.crl);
+        led_pwr.set_high().unwrap();
 
         // Initialize tubes
         let mut tube1_a = gpioa.pa3.into_push_pull_output(&mut gpioa.crl);
@@ -129,26 +115,13 @@ const APP: () = {
         loop {}
     }
 
-    #[task(binds = EXTI15_10, resources = [btn_up, led_wifi, EXTI])]
-    fn count_up(ctx: count_up::Context) {
-        hprintln!("Count up").unwrap();
-
-        // Clear the interrupt
-        ctx.resources.btn_up.clear_interrupt_pending_bit();
-
-        // Toggle the wifi led
+    #[task(resources = [btn_up, btn_dn, led_wifi], schedule = [poll_buttons])]
+    fn poll_buttons(ctx: poll_buttons::Context) {
+        // For now, toggle the LED. In the future, poll the toggle switch inputs.
         ctx.resources.led_wifi.toggle().unwrap();
-    }
 
-    #[task(binds = EXTI9_5, resources = [btn_dn, led_pwr, EXTI])]
-    fn count_down(ctx: count_down::Context) {
-        hprintln!("Count down").unwrap();
-
-        // Clear the interrupt
-        ctx.resources.btn_dn.clear_interrupt_pending_bit();
-
-        // Toggle the pwr led
-        ctx.resources.led_pwr.toggle().unwrap();
+        // Re-schedule the timer interrupt
+        ctx.schedule.poll_buttons(ctx.scheduled + POLL_PERIOD.cycles()).unwrap();
     }
 
     // RTFM requires that free interrupts are declared in an extern block when
