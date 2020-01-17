@@ -8,15 +8,33 @@ extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to c
 // extern crate panic_itm; // logs messages over ITM; requires ITM support
 // extern crate panic_semihosting; // logs messages to the host stderr; requires a debugger
 
+mod command;
+
+use core::convert::Infallible;
+
+use at_rs::Error as AtError;
 use cortex_m_semihosting::hprintln;
 use embedded_hal::digital::v2::{InputPin, OutputPin};
+use embedded_hal::serial::{Read, Write};
+use heapless::{consts, spsc::Queue};
 use rtfm::app;
 use rtfm::cyccnt::U32Ext;
 use stm32f1xx_hal::{prelude::*, pac};
 use stm32f1xx_hal::gpio::{Input, Output, PullUp, PushPull, gpioa, gpiob};
+use stm32f1xx_hal::serial::{self, Rx, Serial, Tx};
+use stm32f1xx_hal::stm32::USART1;
+use stm32f1xx_hal::timer::Timer;
+
+use command::{Command, Response};
 
 // How often (in CPU cycles) the toggle switch should be polled
 const POLL_PERIOD: u32 = 9600; // ~0.2ms
+
+// AT command queue capacities
+// Note: To get better performance use a capacity that is a power of 2
+type AtRxBufferLen = consts::U1024;
+type AtCmdQueueLen = consts::U8;
+type AtRespQueueLen = consts::U8;
 
 #[app(device = stm32f1::stm32f103, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
@@ -38,6 +56,9 @@ const APP: () = {
         debounce_state_up: u16,
         #[init(0)]
         debounce_state_down: u16,
+
+        // AT command parser
+        at_parser: at_rs::ATParser<SerialTxRx<USART1>, Command, AtRxBufferLen, AtCmdQueueLen, AtRespQueueLen>,
     }
 
     /// Initialization happens here.
@@ -46,8 +67,12 @@ const APP: () = {
     /// access to Cortex-M and device specific peripherals through the `core`
     /// and `device` variables, which are injected in the scope of init by the
     /// app attribute.
-    #[init(spawn = [poll_buttons])]
+    #[init(spawn = [poll_buttons, at_loop])]
     fn init(ctx: init::Context) -> init::LateResources {
+        // ESP8266 AT command queues
+        static mut CMD_Q: Option<Queue<Command, AtCmdQueueLen, u8>> = None;
+        static mut RESP_Q: Option<Queue<Result<Response, AtError>, AtRespQueueLen, u8>> = None;
+
         hprintln!("Initializing").unwrap();
 
         // Cortex-M peripherals
@@ -75,7 +100,7 @@ const APP: () = {
         let btn_dn = gpioa.pa8.into_pull_up_input(&mut gpioa.crh);
 
         // Clock configuration
-        let _clocks = rcc
+        let clocks = rcc
             .cfgr
             .use_hse(8.mhz())
             .sysclk(48.mhz())
@@ -102,6 +127,41 @@ const APP: () = {
         tube1_c.set_low().unwrap();
         tube1_d.set_low().unwrap();
 
+        // Initialize timer for serial communication
+        let timer = Timer::tim2(device.TIM2, &clocks, &mut rcc.apb1);
+
+        // Initialize queues
+        *CMD_Q = Some(Queue::u8());
+        *RESP_Q = Some(Queue::u8());
+
+        // Set up serial communication with ESP8266 modem
+        let mut serial = Serial::usart1(
+            device.USART1,
+            (
+                gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh),
+                gpioa.pa10,
+            ),
+            &mut afio.mapr,
+            serial::Config::default().baudrate(115_200.bps()),
+            clocks,
+            &mut rcc.apb2,
+        );
+        serial.listen(serial::Event::Rxne);
+        let (tx, rx) = serial.split();
+
+        // Initialize AT command client
+        let (at_client, at_parser) = at_rs::new(
+            (CMD_Q.as_mut().unwrap(), RESP_Q.as_mut().unwrap()),
+            SerialTxRx { tx, rx },
+            timer.start_count_down(1.hz()),
+            1.hz(),
+        );
+        let (mut at_cmd_producer, _) = at_client.release();
+
+        // Spawn AT loop, enqueue AT command
+        ctx.spawn.at_loop().unwrap();
+        at_cmd_producer.enqueue(Command::At).expect("AT command cannot be enqueued");
+
         hprintln!("Init done").unwrap();
 
         // Assign resources
@@ -110,6 +170,7 @@ const APP: () = {
             btn_dn,
             led_pwr,
             led_wifi,
+            at_parser,
         }
     }
 
@@ -174,6 +235,21 @@ const APP: () = {
         hprintln!("Pushed dn ({})", ctx.resources.people_counter).unwrap();
     }
 
+    #[task(schedule = [at_loop], resources = [at_parser])]
+    fn at_loop(mut ctx: at_loop::Context) {
+        ctx.resources.at_parser.lock(|at| at.spin());
+
+        // Adjust this spin rate to set how often the request/response queue is checked
+        ctx.schedule
+            .at_loop(ctx.scheduled + 1_000_000.cycles())
+            .unwrap();
+    }
+
+    #[task(binds = USART1, priority = 4, resources = [at_parser])]
+    fn serial_irq(ctx: serial_irq::Context) {
+        ctx.resources.at_parser.handle_irq();
+    }
+
     // RTFM requires that free interrupts are declared in an extern block when
     // using software tasks; these free interrupts will be used to dispatch the
     // software tasks.
@@ -200,4 +276,29 @@ fn update_state(state: &mut u16, pushed: bool, mask: u16) -> bool {
 
     // Return whether all bits are now set
     *state == mask
+}
+
+pub struct SerialTxRx<USART> {
+    tx: Tx<USART>,
+    rx: Rx<USART>,
+}
+
+impl Read<u8> for SerialTxRx<USART1> {
+    type Error = serial::Error;
+
+    fn read(&mut self) -> nb::Result<u8, serial::Error> {
+        self.rx.read()
+    }
+}
+
+impl Write<u8> for SerialTxRx<USART1> {
+    type Error = Infallible;
+
+    fn write(&mut self, word: u8) -> Result<(), nb::Error<Self::Error>> {
+        self.tx.write(word)
+    }
+
+    fn flush(&mut self) -> nb::Result<(), Self::Error> {
+        self.tx.flush()
+    }
 }
