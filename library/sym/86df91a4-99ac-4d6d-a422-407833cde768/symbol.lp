@@ -1,7 +1,7 @@
 (librepcb_symbol 86df91a4-99ac-4d6d-a422-407833cde768
  (name "ESP-01")
  (description "An ESP8266 module, esp-01 variant.")
- (keywords "")
+ (keywords "esp8266,esp01,esp-01,espressiv,xtensa,tensilica")
  (author "Danilo Bargen")
  (version "0.1")
  (created 2019-11-14T22:42:29Z)
