@@ -2,9 +2,9 @@
 
 ## Screenshots
 
-![Top](output/v1/screenshot-top.png)
+![Top](output/v1.1/screenshot-top.png)
 
-![Bottom](output/v1/screenshot-bot.png)
+![Bottom](output/v1.1/screenshot-bot.png)
 
 ## Description / Overview
 
