@@ -1,7 +1,7 @@
 (librepcb_board cfaec193-39cb-4766-881d-db9368be8cff
  (name "default")
  (default_font "newstroke.bene")
- (grid (type dots) (interval 0.3175) (unit millimeters))
+ (grid (type dots) (interval 1.27) (unit millimeters))
  (layers (inner 0))
  (design_rules
   (name "LibrePCB Default Design Rules")
@@ -2400,13 +2400,18 @@
   (vertex (position -3.81 -3.81) (angle 0.0))
  )
 
- (polygon b0f311ba-a327-4646-abe9-cf6ba23f5716 (layer brd_outlines)
+ (polygon 92222317-92d8-4a6b-8b2d-1846ac8634bc (layer brd_outlines)
   (width 0.0) (fill false) (grab_area false)
-  (vertex (position 0.0 0.0) (angle 0.0))
-  (vertex (position 100.0 0.0) (angle 0.0))
-  (vertex (position 100.0 80.0) (angle 0.0))
-  (vertex (position 0.0 80.0) (angle 0.0))
-  (vertex (position 0.0 0.0) (angle 0.0))
+  (vertex (position 2.0 80.0) (angle 0.0))
+  (vertex (position 2.0 80.0) (angle 0.0))
+  (vertex (position 98.0 80.0) (angle -90.0))
+  (vertex (position 100.0 78.0) (angle 0.0))
+  (vertex (position 100.0 2.0) (angle -90.0))
+  (vertex (position 98.0 0.0) (angle 0.0))
+  (vertex (position 2.0 0.0) (angle -90.0))
+  (vertex (position 0.0 2.0) (angle 0.0))
+  (vertex (position 0.0 78.0) (angle -90.0))
+  (vertex (position 2.0 80.0) (angle 0.0))
  )
 
  (stroke_text 4cac63ad-1030-41fa-b59f-14981b437dfa (layer top_stop_mask)
