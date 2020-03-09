@@ -8,7 +8,8 @@ extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to c
 // extern crate panic_itm; // logs messages over ITM; requires ITM support
 // extern crate panic_semihosting; // logs messages to the host stderr; requires a debugger
 
-use cortex_m_semihosting::hprintln;
+use cortex_m::asm::delay;
+//use cortex_m_semihosting::hprintln;
 use embedded_hal::digital::v2::{InputPin, OutputPin};
 use rtfm::app;
 use rtfm::cyccnt::U32Ext;
@@ -17,6 +18,61 @@ use stm32f1xx_hal::gpio::{Input, Output, PullUp, PushPull, gpioa, gpiob};
 
 // How often (in CPU cycles) the toggle switch should be polled
 const POLL_PERIOD: u32 = 9600; // ~0.2ms
+
+/// A nixie tube.
+///
+/// The struct needs to be initialized with the four output pins connected to
+/// the K155ID1 BCD encoder.
+pub struct NixieTube<A, B, C, D> {
+    pin_a: A,
+    pin_b: B,
+    pin_c: C,
+    pin_d: D,
+}
+
+impl<A, B, C, D> NixieTube<A, B, C, D>
+where
+    A: OutputPin,
+    B: OutputPin,
+    C: OutputPin,
+    D: OutputPin,
+{
+    /// Show the specified digit.
+    ///
+    /// The value must be between 0 and 9. Otherwise, the tube will be turned off.
+    fn show(&mut self, digit: u8) {
+        if digit & 0x01 > 0 {
+            let _ = self.pin_a.set_high();
+        } else {
+            let _ = self.pin_a.set_low();
+        }
+        if digit & 0x02 > 0 {
+            let _ = self.pin_b.set_high();
+        } else {
+            let _ = self.pin_b.set_low();
+        }
+        if digit & 0x04 > 0 {
+            let _ = self.pin_c.set_high();
+        } else {
+            let _ = self.pin_c.set_low();
+        }
+        if digit & 0x08 > 0 {
+            let _ = self.pin_d.set_high();
+        } else {
+            let _ = self.pin_d.set_low();
+        }
+    }
+
+    /// Turn off the tube.
+    fn off(&mut self) {
+        // The value 0b1111 is out of range and will result
+        // in the tube being turned off.
+        let _ = self.pin_a.set_high();
+        let _ = self.pin_b.set_high();
+        let _ = self.pin_c.set_high();
+        let _ = self.pin_d.set_high();
+    }
+}
 
 #[app(device = stm32f1::stm32f103, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
@@ -28,6 +84,14 @@ const APP: () = {
         // LEDs
         led_pwr: gpiob::PB3<Output<PushPull>>,
         led_wifi: gpiob::PB4<Output<PushPull>>,
+
+        // Tube
+        tube1: NixieTube<
+            gpioa::PA3<Output<PushPull>>,
+            gpioa::PA1<Output<PushPull>>,
+            gpioa::PA0<Output<PushPull>>,
+            gpioa::PA2<Output<PushPull>>,
+        >,
 
         // Counter
         #[init(0)]
@@ -48,7 +112,7 @@ const APP: () = {
     /// app attribute.
     #[init(spawn = [poll_buttons])]
     fn init(ctx: init::Context) -> init::LateResources {
-        hprintln!("Initializing").unwrap();
+        //hprintln!("Initializing").unwrap();
 
         // Cortex-M peripherals
         let mut core: rtfm::Peripherals = ctx.core;
@@ -81,28 +145,46 @@ const APP: () = {
             .sysclk(48.mhz())
             .pclk1(24.mhz())
             .freeze(&mut flash.acr);
+        let selftest_delay = 5_000_000;
 
         // Schedule polling timer for toggle switch
         ctx.spawn.poll_buttons().unwrap();
 
-        // Set up status LEDs and blink twice
+        // Set up status LEDs and blink
         let mut led_pwr = pb3.into_push_pull_output(&mut gpiob.crl);
-        let led_wifi = pb4.into_push_pull_output(&mut gpiob.crl);
+        let mut led_wifi = pb4.into_push_pull_output(&mut gpiob.crl);
+        for _ in 0..2 {
+            led_pwr.set_high().unwrap();
+            led_wifi.set_high().unwrap();
+            delay(selftest_delay);
+            led_pwr.set_low().unwrap();
+            led_wifi.set_low().unwrap();
+            delay(selftest_delay);
+        }
         led_pwr.set_high().unwrap();
 
         // Initialize tubes
-        let mut tube1_a = gpioa.pa3.into_push_pull_output(&mut gpioa.crl);
-        let mut tube1_b = gpioa.pa1.into_push_pull_output(&mut gpioa.crl);
-        let mut tube1_c = gpioa.pa0.into_push_pull_output(&mut gpioa.crl);
-        let mut tube1_d = gpioa.pa2.into_push_pull_output(&mut gpioa.crl);
+        let mut tube1 = NixieTube {
+            pin_a: gpioa.pa3.into_push_pull_output(&mut gpioa.crl),
+            pin_b: gpioa.pa1.into_push_pull_output(&mut gpioa.crl),
+            pin_c: gpioa.pa0.into_push_pull_output(&mut gpioa.crl),
+            pin_d: gpioa.pa2.into_push_pull_output(&mut gpioa.crl),
+        };
+        let mut tube2 = NixieTube {
+            pin_a: gpioa.pa7.into_push_pull_output(&mut gpioa.crl),
+            pin_b: gpioa.pa5.into_push_pull_output(&mut gpioa.crl),
+            pin_c: gpioa.pa4.into_push_pull_output(&mut gpioa.crl),
+            pin_d: gpioa.pa6.into_push_pull_output(&mut gpioa.crl),
+        };
+        for i in 0..=9 {
+            tube1.show(i);
+            tube2.show(i);
+            delay(selftest_delay);
+        }
+        tube1.show(4);
+        tube2.show(2);
 
-        // Show number 3
-        tube1_a.set_high().unwrap();
-        tube1_b.set_high().unwrap();
-        tube1_c.set_low().unwrap();
-        tube1_d.set_low().unwrap();
-
-        hprintln!("Init done").unwrap();
+        //hprintln!("Init done").unwrap();
 
         // Assign resources
         init::LateResources {
@@ -110,12 +192,13 @@ const APP: () = {
             btn_dn,
             led_pwr,
             led_wifi,
+            tube1,
         }
     }
 
     #[idle]
     fn idle(_: idle::Context) -> ! {
-        hprintln!("Idle").unwrap();
+        //hprintln!("Idle").unwrap();
 
         // The idle loop
         loop {}
@@ -157,21 +240,23 @@ const APP: () = {
     }
 
     /// The "up" switch was pushed.
-    #[task(resources = [people_counter])]
+    #[task(resources = [people_counter, tube1])]
     fn pushed_up(ctx: pushed_up::Context) {
         if *ctx.resources.people_counter < 99 {
             *ctx.resources.people_counter += 1;
         }
-        hprintln!("Pushed up ({})", ctx.resources.people_counter).unwrap();
+        ctx.resources.tube1.show(*ctx.resources.people_counter);
+        //hprintln!("Pushed up ({})", ctx.resources.people_counter).unwrap();
     }
 
     /// The "down" switch was pushed.
-    #[task(resources = [people_counter])]
+    #[task(resources = [people_counter, tube1])]
     fn pushed_down(ctx: pushed_down::Context) {
         if *ctx.resources.people_counter > 0 {
             *ctx.resources.people_counter -= 1;
         }
-        hprintln!("Pushed dn ({})", ctx.resources.people_counter).unwrap();
+        ctx.resources.tube1.show(*ctx.resources.people_counter);
+        //hprintln!("Pushed dn ({})", ctx.resources.people_counter).unwrap();
     }
 
     // RTFM requires that free interrupts are declared in an extern block when
