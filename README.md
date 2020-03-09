@@ -1,15 +1,11 @@
 # Nixie Counter
 
-## Screenshots
-
-![Top](output/v1.1/screenshot-top.png)
-
-![Bottom](output/v1.1/screenshot-bot.png)
-
 ## Description / Overview
 
 PCB for a physical "people now present" counter that sends it data directly to
 the [SpaceAPI](https://spaceapi.io/).
+
+![Photo](nixie_counter.jpg)
 
 **Microcontroller**
 
@@ -46,6 +42,12 @@ Two LDOs convert the 12V to 5V (for the nixie drivers) and 3.3V (for the rest).
 There's a yellow LED to indicate that the controller has power and runs the
 correct firmware, and a green LED to indicate whether the ESP-01 module is
 connected to the WiFi or not.
+
+## PCB
+
+![Top](output/v1.1/screenshot-top.png)
+
+![Bottom](output/v1.1/screenshot-bot.png)
 
 ## Editing
 
