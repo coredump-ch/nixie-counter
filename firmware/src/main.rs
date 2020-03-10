@@ -11,9 +11,16 @@ use rtfm::app;
 use rtfm::cyccnt::U32Ext;
 use stm32f1xx_hal::{prelude::*, pac};
 use stm32f1xx_hal::gpio::{Input, Output, PullUp, PushPull, gpioa, gpiob};
+use stm32f1xx_hal::time::Hertz;
+
+// The main frequency in Hz
+const FREQUENCY: u32 = 48_000_000;
 
 // How often (in CPU cycles) the toggle switch should be polled
-const POLL_PERIOD: u32 = 9600; // ~0.2ms
+const POLL_PERIOD: u32 = FREQUENCY / 5000; // ~0.2ms
+
+// How fast (in CPU cycles) the toggle switch should be polled
+const SELFTEST_DELAY: u32 = FREQUENCY / 10; // ~0.1s
 
 /// A nixie tube.
 ///
@@ -128,18 +135,17 @@ const APP: () = {
         core.DCB.enable_trace();
         core.DWT.enable_cycle_counter();
 
-        // Set up toggle inputs
-        let btn_up = gpioa.pa11.into_pull_up_input(&mut gpioa.crh);
-        let btn_dn = gpioa.pa8.into_pull_up_input(&mut gpioa.crh);
-
         // Clock configuration
         let _clocks = rcc
             .cfgr
             .use_hse(8.mhz())
-            .sysclk(48.mhz())
+            .sysclk(Hertz(FREQUENCY))
             .pclk1(24.mhz())
             .freeze(&mut flash.acr);
-        let selftest_delay = 5_000_000;
+
+        // Set up toggle inputs
+        let btn_up = gpioa.pa11.into_pull_up_input(&mut gpioa.crh);
+        let btn_dn = gpioa.pa8.into_pull_up_input(&mut gpioa.crh);
 
         // Schedule polling timer for toggle switch
         ctx.spawn.poll_buttons().unwrap();
@@ -150,10 +156,10 @@ const APP: () = {
         for _ in 0..2 {
             led_pwr.set_high().unwrap();
             led_wifi.set_high().unwrap();
-            delay(selftest_delay);
+            delay(SELFTEST_DELAY);
             led_pwr.set_low().unwrap();
             led_wifi.set_low().unwrap();
-            delay(selftest_delay);
+            delay(SELFTEST_DELAY);
         }
         led_pwr.set_high().unwrap();
 
@@ -173,10 +179,10 @@ const APP: () = {
         for i in 0..=9 {
             tube1.show(i);
             tube2.show(i);
-            delay(selftest_delay);
+            delay(SELFTEST_DELAY);
         }
-        tube1.show(4);
-        tube2.show(2);
+        tube1.off();
+        tube2.off();
 
         // Assign resources
         init::LateResources {
