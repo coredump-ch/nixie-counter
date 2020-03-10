@@ -11,6 +11,45 @@ pub struct NixieTube<A, B, C, D> {
     pub pin_d: D,
 }
 
+/// A pair of two nixie tubes.
+pub struct NixieTubePair<A, B, C, D, E, F, G, H> {
+    left: NixieTube<A, B, C, D>,
+    right: NixieTube<E, F, G, H>,
+}
+
+impl<A, B, C, D, E, F, G, H> NixieTubePair<A, B, C, D, E, F, G, H>
+where
+    A: OutputPin,
+    B: OutputPin,
+    C: OutputPin,
+    D: OutputPin,
+    E: OutputPin,
+    F: OutputPin,
+    G: OutputPin,
+    H: OutputPin,
+{
+    /// Create a new instance.
+    pub fn new(left: NixieTube<A, B, C, D>, right: NixieTube<E, F, G, H>) -> Self {
+        Self { left, right }
+    }
+
+    /// Return mutable reference to the left tube.
+    pub fn left(&mut self) -> &mut NixieTube<A, B, C, D> {
+        &mut self.left
+    }
+
+    /// Return mutable reference to the right tube.
+    pub fn right(&mut self) -> &mut NixieTube<E, F, G, H> {
+        &mut self.right
+    }
+
+    /// Turn off both tubes.
+    pub fn off(&mut self) {
+        self.left.off();
+        self.right.off();
+    }
+}
+
 impl<A, B, C, D> NixieTube<A, B, C, D>
 where
     A: OutputPin,

@@ -15,7 +15,7 @@ use stm32f1xx_hal::time::Hertz;
 
 mod nixie;
 
-use nixie::NixieTube;
+use nixie::{NixieTube, NixieTubePair};
 
 // The main frequency in Hz
 const FREQUENCY: u32 = 48_000_000;
@@ -37,12 +37,16 @@ const APP: () = {
         led_pwr: gpiob::PB3<Output<PushPull>>,
         led_wifi: gpiob::PB4<Output<PushPull>>,
 
-        // Tube
-        tube1: NixieTube<
+        // Tubes
+        tubes: NixieTubePair<
             gpioa::PA3<Output<PushPull>>,
             gpioa::PA1<Output<PushPull>>,
             gpioa::PA0<Output<PushPull>>,
             gpioa::PA2<Output<PushPull>>,
+            gpioa::PA7<Output<PushPull>>,
+            gpioa::PA5<Output<PushPull>>,
+            gpioa::PA4<Output<PushPull>>,
+            gpioa::PA6<Output<PushPull>>,
         >,
 
         // Counter
@@ -113,25 +117,26 @@ const APP: () = {
         led_pwr.set_high().unwrap();
 
         // Initialize tubes
-        let mut tube1 = NixieTube {
-            pin_a: gpioa.pa3.into_push_pull_output(&mut gpioa.crl),
-            pin_b: gpioa.pa1.into_push_pull_output(&mut gpioa.crl),
-            pin_c: gpioa.pa0.into_push_pull_output(&mut gpioa.crl),
-            pin_d: gpioa.pa2.into_push_pull_output(&mut gpioa.crl),
-        };
-        let mut tube2 = NixieTube {
-            pin_a: gpioa.pa7.into_push_pull_output(&mut gpioa.crl),
-            pin_b: gpioa.pa5.into_push_pull_output(&mut gpioa.crl),
-            pin_c: gpioa.pa4.into_push_pull_output(&mut gpioa.crl),
-            pin_d: gpioa.pa6.into_push_pull_output(&mut gpioa.crl),
-        };
+        let mut tubes = NixieTubePair::new(
+            NixieTube {
+                pin_a: gpioa.pa3.into_push_pull_output(&mut gpioa.crl),
+                pin_b: gpioa.pa1.into_push_pull_output(&mut gpioa.crl),
+                pin_c: gpioa.pa0.into_push_pull_output(&mut gpioa.crl),
+                pin_d: gpioa.pa2.into_push_pull_output(&mut gpioa.crl),
+            },
+            NixieTube {
+                pin_a: gpioa.pa7.into_push_pull_output(&mut gpioa.crl),
+                pin_b: gpioa.pa5.into_push_pull_output(&mut gpioa.crl),
+                pin_c: gpioa.pa4.into_push_pull_output(&mut gpioa.crl),
+                pin_d: gpioa.pa6.into_push_pull_output(&mut gpioa.crl),
+            },
+        );
         for i in 0..=9 {
-            tube1.show(i);
-            tube2.show(i);
+            tubes.left().show(i);
+            tubes.right().show(i);
             delay(SELFTEST_DELAY);
         }
-        tube1.off();
-        tube2.off();
+        tubes.off();
 
         // Assign resources
         init::LateResources {
@@ -139,7 +144,7 @@ const APP: () = {
             btn_dn,
             led_pwr,
             led_wifi,
-            tube1,
+            tubes,
         }
     }
 
@@ -188,21 +193,21 @@ const APP: () = {
     }
 
     /// The "up" switch was pushed.
-    #[task(resources = [people_counter, tube1])]
+    #[task(resources = [people_counter, tubes])]
     fn pushed_up(ctx: pushed_up::Context) {
         if *ctx.resources.people_counter < 99 {
             *ctx.resources.people_counter += 1;
         }
-        ctx.resources.tube1.show(*ctx.resources.people_counter);
+        ctx.resources.tubes.left().show(*ctx.resources.people_counter);
     }
 
     /// The "down" switch was pushed.
-    #[task(resources = [people_counter, tube1])]
+    #[task(resources = [people_counter, tubes])]
     fn pushed_down(ctx: pushed_down::Context) {
         if *ctx.resources.people_counter > 0 {
             *ctx.resources.people_counter -= 1;
         }
-        ctx.resources.tube1.show(*ctx.resources.people_counter);
+        ctx.resources.tubes.left().show(*ctx.resources.people_counter);
     }
 
     // RTFM requires that free interrupts are declared in an extern block when
