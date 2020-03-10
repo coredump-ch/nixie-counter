@@ -3,14 +3,14 @@
 #![deny(unsafe_code)]
 
 extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to catch panics
-// extern crate panic_abort; // requires nightly
 
 use cortex_m::asm::delay;
 use embedded_hal::digital::v2::{InputPin, OutputPin};
 use rtfm::app;
 use rtfm::cyccnt::U32Ext;
-use stm32f1xx_hal::{prelude::*, pac};
-use stm32f1xx_hal::gpio::{Input, Output, PullUp, PushPull, gpioa, gpiob};
+use stm32f1xx_hal::gpio::{gpioa, gpiob, Input, Output, PullUp, PushPull};
+use stm32f1xx_hal::pac;
+use stm32f1xx_hal::prelude::*;
 use stm32f1xx_hal::time::Hertz;
 
 // The main frequency in Hz
@@ -221,7 +221,8 @@ const APP: () = {
 
         // Update state
         let up_pushed_debounced = update_state(ctx.resources.debounce_state_up, up_pushed, mask);
-        let down_pushed_debounced = update_state(ctx.resources.debounce_state_down, down_pushed, mask);
+        let down_pushed_debounced =
+            update_state(ctx.resources.debounce_state_down, down_pushed, mask);
 
         // Schedule state change handlers
         if up_pushed_debounced {
@@ -232,7 +233,9 @@ const APP: () = {
         }
 
         // Re-schedule the timer interrupt
-        ctx.schedule.poll_buttons(ctx.scheduled + POLL_PERIOD.cycles()).unwrap();
+        ctx.schedule
+            .poll_buttons(ctx.scheduled + POLL_PERIOD.cycles())
+            .unwrap();
     }
 
     /// The "up" switch was pushed.
