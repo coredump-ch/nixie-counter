@@ -9,7 +9,6 @@ version = "0.1.0"
 cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"
 cortex-m-rtfm = "0.5"
-cortex-m-semihosting = "0.3.3"
 embedded-hal = "0.2"
 panic-halt = "0.2.0"
 stm32f1 = { version = "0.9", features = ["stm32f103", "rt"] }

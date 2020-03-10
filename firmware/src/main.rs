@@ -2,14 +2,10 @@
 #![cfg_attr(not(test), no_std)]
 #![deny(unsafe_code)]
 
-// pick a panicking behavior
 extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to catch panics
 // extern crate panic_abort; // requires nightly
-// extern crate panic_itm; // logs messages over ITM; requires ITM support
-// extern crate panic_semihosting; // logs messages to the host stderr; requires a debugger
 
 use cortex_m::asm::delay;
-//use cortex_m_semihosting::hprintln;
 use embedded_hal::digital::v2::{InputPin, OutputPin};
 use rtfm::app;
 use rtfm::cyccnt::U32Ext;
@@ -112,8 +108,6 @@ const APP: () = {
     /// app attribute.
     #[init(spawn = [poll_buttons])]
     fn init(ctx: init::Context) -> init::LateResources {
-        //hprintln!("Initializing").unwrap();
-
         // Cortex-M peripherals
         let mut core: rtfm::Peripherals = ctx.core;
 
@@ -184,8 +178,6 @@ const APP: () = {
         tube1.show(4);
         tube2.show(2);
 
-        //hprintln!("Init done").unwrap();
-
         // Assign resources
         init::LateResources {
             btn_up,
@@ -198,8 +190,6 @@ const APP: () = {
 
     #[idle]
     fn idle(_: idle::Context) -> ! {
-        //hprintln!("Idle").unwrap();
-
         // The idle loop
         loop {}
     }
@@ -246,7 +236,6 @@ const APP: () = {
             *ctx.resources.people_counter += 1;
         }
         ctx.resources.tube1.show(*ctx.resources.people_counter);
-        //hprintln!("Pushed up ({})", ctx.resources.people_counter).unwrap();
     }
 
     /// The "down" switch was pushed.
@@ -256,7 +245,6 @@ const APP: () = {
             *ctx.resources.people_counter -= 1;
         }
         ctx.resources.tube1.show(*ctx.resources.people_counter);
-        //hprintln!("Pushed dn ({})", ctx.resources.people_counter).unwrap();
     }
 
     // RTFM requires that free interrupts are declared in an extern block when
