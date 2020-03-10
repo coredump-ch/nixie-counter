@@ -13,6 +13,10 @@ use stm32f1xx_hal::pac;
 use stm32f1xx_hal::prelude::*;
 use stm32f1xx_hal::time::Hertz;
 
+mod nixie;
+
+use nixie::NixieTube;
+
 // The main frequency in Hz
 const FREQUENCY: u32 = 48_000_000;
 
@@ -21,61 +25,6 @@ const POLL_PERIOD: u32 = FREQUENCY / 5000; // ~0.2ms
 
 // How fast (in CPU cycles) the toggle switch should be polled
 const SELFTEST_DELAY: u32 = FREQUENCY / 10; // ~0.1s
-
-/// A nixie tube.
-///
-/// The struct needs to be initialized with the four output pins connected to
-/// the K155ID1 BCD encoder.
-pub struct NixieTube<A, B, C, D> {
-    pin_a: A,
-    pin_b: B,
-    pin_c: C,
-    pin_d: D,
-}
-
-impl<A, B, C, D> NixieTube<A, B, C, D>
-where
-    A: OutputPin,
-    B: OutputPin,
-    C: OutputPin,
-    D: OutputPin,
-{
-    /// Show the specified digit.
-    ///
-    /// The value must be between 0 and 9. Otherwise, the tube will be turned off.
-    fn show(&mut self, digit: u8) {
-        if digit & 0x01 > 0 {
-            let _ = self.pin_a.set_high();
-        } else {
-            let _ = self.pin_a.set_low();
-        }
-        if digit & 0x02 > 0 {
-            let _ = self.pin_b.set_high();
-        } else {
-            let _ = self.pin_b.set_low();
-        }
-        if digit & 0x04 > 0 {
-            let _ = self.pin_c.set_high();
-        } else {
-            let _ = self.pin_c.set_low();
-        }
-        if digit & 0x08 > 0 {
-            let _ = self.pin_d.set_high();
-        } else {
-            let _ = self.pin_d.set_low();
-        }
-    }
-
-    /// Turn off the tube.
-    fn off(&mut self) {
-        // The value 0b1111 is out of range and will result
-        // in the tube being turned off.
-        let _ = self.pin_a.set_high();
-        let _ = self.pin_b.set_high();
-        let _ = self.pin_c.set_high();
-        let _ = self.pin_d.set_high();
-    }
-}
 
 #[app(device = stm32f1::stm32f103, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
 const APP: () = {
