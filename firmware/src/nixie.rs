@@ -43,6 +43,24 @@ where
         &mut self.right
     }
 
+    /// Show a number between 1 and 99.
+    ///
+    /// Leading zeroes as well as the number 0 will not be shown. If you need
+    /// to show zeroes, use the `show_digit` method on the tube directly.
+    pub fn show(&mut self, val: u8) {
+        let tens = (val / 10) % 100;
+        let ones = val % 10;
+        if tens > 0 {
+            self.left.show_digit(tens);
+            self.right.show_digit(ones);
+        } else if ones > 0 {
+            self.left.off();
+            self.right.show_digit(ones);
+        } else {
+            self.off();
+        }
+    }
+
     /// Turn off both tubes.
     pub fn off(&mut self) {
         self.left.off();
@@ -60,7 +78,7 @@ where
     /// Show the specified digit.
     ///
     /// The value must be between 0 and 9. Otherwise, the tube will be turned off.
-    pub fn show(&mut self, digit: u8) {
+    pub fn show_digit(&mut self, digit: u8) {
         if digit & 0x01 > 0 {
             let _ = self.pin_a.set_high();
         } else {

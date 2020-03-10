@@ -132,8 +132,8 @@ const APP: () = {
             },
         );
         for i in 0..=9 {
-            tubes.left().show(i);
-            tubes.right().show(i);
+            tubes.left().show_digit(i);
+            tubes.right().show_digit(i);
             delay(SELFTEST_DELAY);
         }
         tubes.off();
@@ -198,7 +198,7 @@ const APP: () = {
         if *ctx.resources.people_counter < 99 {
             *ctx.resources.people_counter += 1;
         }
-        ctx.resources.tubes.left().show(*ctx.resources.people_counter);
+        ctx.resources.tubes.show(*ctx.resources.people_counter);
     }
 
     /// The "down" switch was pushed.
@@ -207,7 +207,7 @@ const APP: () = {
         if *ctx.resources.people_counter > 0 {
             *ctx.resources.people_counter -= 1;
         }
-        ctx.resources.tubes.left().show(*ctx.resources.people_counter);
+        ctx.resources.tubes.show(*ctx.resources.people_counter);
     }
 
     // RTFM requires that free interrupts are declared in an extern block when
