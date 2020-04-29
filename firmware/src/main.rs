@@ -2,13 +2,13 @@
 #![cfg_attr(not(test), no_std)]
 #![deny(unsafe_code)]
 
-extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to catch panics
-
 use cortex_m::asm::delay;
 use debouncr::{Debouncer, debounce_12, Edge, Repeat12};
 use embedded_hal::digital::v2::{InputPin, OutputPin};
+use panic_rtt_target as _;
 use rtfm::app;
 use rtfm::cyccnt::U32Ext;
+use rtt_target::{rprintln, rtt_init_print};
 use stm32f1xx_hal::gpio::{gpioa, gpiob, Input, Output, PullUp, PushPull};
 use stm32f1xx_hal::pac;
 use stm32f1xx_hal::prelude::*;
@@ -67,6 +67,9 @@ const APP: () = {
     /// app attribute.
     #[init(spawn = [poll_buttons])]
     fn init(ctx: init::Context) -> init::LateResources {
+        rtt_init_print!();
+        rprintln!("init");
+
         // Cortex-M peripherals
         let mut core: rtfm::Peripherals = ctx.core;
 
@@ -167,6 +170,7 @@ const APP: () = {
         schedule = [poll_buttons],
     )]
     fn poll_buttons(ctx: poll_buttons::Context) {
+        rprintln!("poll_buttons");
         // Poll GPIOs
         let up_pushed: bool = ctx.resources.btn_up.is_low().unwrap();
         let down_pushed: bool = ctx.resources.btn_dn.is_low().unwrap();

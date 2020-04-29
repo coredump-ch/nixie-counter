@@ -7,3 +7,6 @@ restore_unwritten_bytes = false
 
 [general]
 chip = "STM32F103C8"
+
+[rtt]
+enabled = true
