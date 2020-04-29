@@ -5,6 +5,7 @@
 extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to catch panics
 
 use cortex_m::asm::delay;
+use debouncr::{Debouncer, debounce_12, Edge, Repeat12};
 use embedded_hal::digital::v2::{InputPin, OutputPin};
 use rtfm::app;
 use rtfm::cyccnt::U32Ext;
@@ -54,10 +55,8 @@ const APP: () = {
         people_counter: u8,
 
         // Debouncing state
-        #[init(0)]
-        debounce_state_up: u16,
-        #[init(0)]
-        debounce_state_down: u16,
+        debounce_up: Debouncer<u16, Repeat12>,
+        debounce_down: Debouncer<u16, Repeat12>,
     }
 
     /// Initialization happens here.
@@ -145,6 +144,8 @@ const APP: () = {
             led_pwr,
             led_wifi,
             tubes,
+            debounce_up: debounce_12(),
+            debounce_down: debounce_12(),
         }
     }
 
@@ -161,28 +162,24 @@ const APP: () = {
     /// and the input pin becomes high, the task will fire after 12 ms. Every
     /// low input will reset the whole state though.
     #[task(
-        resources = [btn_up, btn_dn, debounce_state_up, debounce_state_down],
+        resources = [btn_up, btn_dn, debounce_up, debounce_down],
         spawn = [pushed_up, pushed_down],
         schedule = [poll_buttons],
     )]
     fn poll_buttons(ctx: poll_buttons::Context) {
-        // Specify mask. Only consider the first 12 bits.
-        let mask: u16 = 0b0000_1111_1111_1111;
-
         // Poll GPIOs
         let up_pushed: bool = ctx.resources.btn_up.is_low().unwrap();
         let down_pushed: bool = ctx.resources.btn_dn.is_low().unwrap();
 
         // Update state
-        let up_pushed_debounced = update_state(ctx.resources.debounce_state_up, up_pushed, mask);
-        let down_pushed_debounced =
-            update_state(ctx.resources.debounce_state_down, down_pushed, mask);
+        let up_edge = ctx.resources.debounce_up.update(up_pushed);
+        let down_edge = ctx.resources.debounce_down.update(down_pushed);
 
         // Schedule state change handlers
-        if up_pushed_debounced {
+        if up_edge == Some(Edge::Rising) {
             ctx.spawn.pushed_up().unwrap();
         }
-        if down_pushed_debounced {
+        if down_edge == Some(Edge::Rising) {
             ctx.spawn.pushed_down().unwrap();
         }
 
@@ -218,22 +215,3 @@ const APP: () = {
         fn SPI2();
     }
 };
-
-/// Update state by left-shifting in the current button state.
-/// Then apply the mask (boolean AND) to limit the number of bits considered.
-/// Return true if all masked bits are set, but weren't set previously (rising edge).
-#[inline]
-fn update_state(state: &mut u16, pushed: bool, mask: u16) -> bool {
-    // If all bits are already set and there was no change,
-    // we can immediately return false since we're only interested
-    // in the rising edge.
-    if *state == mask && pushed {
-        return false;
-    }
-
-    // Update state by shifting in the push state & masking.
-    *state = ((*state << 1) | (pushed as u16)) & mask;
-
-    // Return whether all bits are now set
-    *state == mask
-}
