@@ -3,11 +3,11 @@
 #![deny(unsafe_code)]
 
 use cortex_m::asm::delay;
-use debouncr::{Debouncer, debounce_12, Edge, Repeat12};
+use debouncr::{debounce_12, Debouncer, Edge, Repeat12};
 use embedded_hal::digital::v2::{InputPin, OutputPin};
 use panic_rtt_target as _;
-use rtfm::app;
-use rtfm::cyccnt::U32Ext;
+use rtic::app;
+use rtic::cyccnt::U32Ext;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f1xx_hal::gpio::{gpioa, gpiob, Input, Output, PullUp, PushPull};
 use stm32f1xx_hal::pac;
@@ -27,7 +27,7 @@ const POLL_PERIOD: u32 = FREQUENCY / 5000; // ~0.2ms
 // How fast (in CPU cycles) the toggle switch should be polled
 const SELFTEST_DELAY: u32 = FREQUENCY / 10; // ~0.1s
 
-#[app(device = stm32f1::stm32f103, peripherals = true, monotonic = rtfm::cyccnt::CYCCNT)]
+#[app(device = stm32f1::stm32f103, peripherals = true, monotonic = rtic::cyccnt::CYCCNT)]
 const APP: () = {
     struct Resources {
         // Buttons
@@ -71,7 +71,7 @@ const APP: () = {
         rprintln!("init");
 
         // Cortex-M peripherals
-        let mut core: rtfm::Peripherals = ctx.core;
+        let mut core: rtic::Peripherals = ctx.core;
 
         // Device specific peripherals
         let device: pac::Peripherals = ctx.device;
@@ -211,7 +211,7 @@ const APP: () = {
         ctx.resources.tubes.show(*ctx.resources.people_counter);
     }
 
-    // RTFM requires that free interrupts are declared in an extern block when
+    // RTIC requires that free interrupts are declared in an extern block when
     // using software tasks; these free interrupts will be used to dispatch the
     // software tasks.
     extern "C" {
