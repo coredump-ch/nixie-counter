@@ -368,9 +368,9 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "stm32f1"
-version = "0.9.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22ce629123831891663402861bdc7140ebfd6a34a464329f9b9ec1cfde72055a"
+checksum = "849b1e8d9bcfd792c9d9178cf86165d299a661c26e35d9322ae9382d3f3fe460"
 dependencies = [
  "bare-metal",
  "cortex-m 0.6.7",
@@ -380,9 +380,9 @@ dependencies = [
 
 [[package]]
 name = "stm32f1xx-hal"
-version = "0.5.3"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "455bf444813cdc2498130626c5d0ca42f91de1e8261751f3bdc6e5ad9e2aa128"
+checksum = "af9b9e5d7c2901ee39fc9527412327a1fe08f1d84e9d7f4b3497448e655e5098"
 dependencies = [
  "as-slice",
  "cast",
