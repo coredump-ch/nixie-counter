@@ -15,7 +15,7 @@ panic-rtt-target = { version = "0.1.0", features = ["cortex-m"] }
 stm32f1 = { version = "0.14", features = ["stm32f103", "rt"] }
 stm32f1xx-hal = { version = "0.9", features = ["stm32f103", "medium", "rtic"] }
 systick-monotonic = "1"
-rtt-target = { version = "0.1", features = ["cortex-m"] }
+rtt-target = { version = "0.3", features = ["cortex-m"] }
 
 [[bin]]
 name = "nixie-counter"

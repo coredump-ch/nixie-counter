@@ -12,27 +12,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aligned"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a785a543aea40f5e4e2e93bb2655d31bc21bb391fff65697150973e383f16bb"
-dependencies = [
- "as-slice",
-]
-
-[[package]]
-name = "as-slice"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45403b49e3954a4b8428a0ac21a4b7afadccf92bfd96273f1a58cd4812496ae0"
-dependencies = [
- "generic-array 0.12.4",
- "generic-array 0.13.3",
- "generic-array 0.14.6",
- "stable_deref_trait",
-]
-
-[[package]]
 name = "atomic-polyfill"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -105,19 +84,6 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "cortex-m"
-version = "0.6.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9075300b07c6a56263b9b582c214d0ff037b00d45ec9fde1cc711490c56f1bb9"
-dependencies = [
- "aligned",
- "bare-metal 0.2.5",
- "bitfield",
- "cortex-m 0.7.6",
- "volatile-register",
-]
-
-[[package]]
-name = "cortex-m"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70858629a458fdfd39f9675c4dc309411f2a3f83bede76988d81bf1a0ecee9e0"
@@ -155,7 +121,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c6b82f1c39acd6c3a35c2013b6110c20f5bc534522791fabadeed49ccada2dce"
 dependencies = [
  "bare-metal 1.0.0",
- "cortex-m 0.7.6",
+ "cortex-m",
  "cortex-m-rtic-macros",
  "heapless",
  "rtic-core",
@@ -184,7 +150,7 @@ checksum = "95da181745b56d4bd339530ec393508910c909c784e8962d15d722bacf0bcbcd"
 dependencies = [
  "bare-metal 1.0.0",
  "cfg-if",
- "cortex-m 0.7.6",
+ "cortex-m",
  "riscv",
 ]
 
@@ -248,34 +214,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f37978dab2ca789938a83b2f8bc1ef32db6633af9051a6cd409eff72cbaaa79a"
 dependencies = [
  "paste",
-]
-
-[[package]]
-name = "generic-array"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffdf9f34f1447443d37393cc6c2b8313aebddcd96906caf34e54c68d8e57d7bd"
-dependencies = [
- "typenum",
-]
-
-[[package]]
-name = "generic-array"
-version = "0.13.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f797e67af32588215eaaab8327027ee8e71b9dd0b2b26996aedf20c030fce309"
-dependencies = [
- "typenum",
-]
-
-[[package]]
-name = "generic-array"
-version = "0.14.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bff49e947297f3312447abdca79f45f4738097cc82b06e72054d2223f601f1b9"
-dependencies = [
- "typenum",
- "version_check",
 ]
 
 [[package]]
@@ -357,13 +295,13 @@ checksum = "546c37ac5d9e56f55e73b677106873d9d9f5190605e41a856503623648488cae"
 name = "nixie-counter"
 version = "0.1.0"
 dependencies = [
- "cortex-m 0.7.6",
+ "cortex-m",
  "cortex-m-rt",
  "cortex-m-rtic",
  "debouncr",
  "embedded-hal",
  "panic-rtt-target",
- "rtt-target 0.1.1",
+ "rtt-target",
  "stm32f1",
  "stm32f1xx-hal",
  "systick-monotonic",
@@ -375,8 +313,8 @@ version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d6ab67bc881453e4c90f958c657c1303670ea87bc1a16e87fd71a40f656dce9"
 dependencies = [
- "cortex-m 0.7.6",
- "rtt-target 0.3.1",
+ "cortex-m",
+ "rtt-target",
 ]
 
 [[package]]
@@ -491,21 +429,11 @@ dependencies = [
 
 [[package]]
 name = "rtt-target"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26ebda2070a2dd2f5d1bba0c427055f475bb011ca8215add472b6e6ba6b7265c"
-dependencies = [
- "cortex-m 0.6.7",
- "ufmt-write",
- "vcell",
-]
-
-[[package]]
-name = "rtt-target"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "065d6058bb1204f51a562a67209e1817cf714759d5cf845aa45c75fa7b0b9d9b"
 dependencies = [
+ "cortex-m",
  "ufmt-write",
 ]
 
@@ -575,7 +503,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c6c94998f166d66b210a164648a0b7866428d8f1e0740bf8a4c5edd89d4750c1"
 dependencies = [
- "cortex-m 0.7.6",
+ "cortex-m",
  "usb-device",
  "vcell",
 ]
@@ -587,7 +515,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78d0d11d776bc6f165c68c67468826b33b3eabd04c3c319df5e8476dd580002d"
 dependencies = [
  "bare-metal 1.0.0",
- "cortex-m 0.7.6",
+ "cortex-m",
  "cortex-m-rt",
  "vcell",
 ]
@@ -600,7 +528,7 @@ checksum = "1232c561785bdbc59a5ab2b28c5c9429cb9ee9b04687133e59d1a34a39426943"
 dependencies = [
  "bitflags",
  "bxcan",
- "cortex-m 0.7.6",
+ "cortex-m",
  "cortex-m-rt",
  "embedded-dma",
  "embedded-hal",
@@ -630,16 +558,10 @@ version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57e71d8e4587d8f434b88b9aef901987f46164df813a3a1d6bdf3a58debf67f0"
 dependencies = [
- "cortex-m 0.7.6",
+ "cortex-m",
  "fugit",
  "rtic-monotonic",
 ]
-
-[[package]]
-name = "typenum"
-version = "1.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcf81ac59edc17cc8697ff311e8f5ef2d99fcbd9817b34cec66f90b6c3dfd987"
 
 [[package]]
 name = "ufmt-write"
