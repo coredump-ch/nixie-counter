@@ -3,7 +3,7 @@
 #![deny(unsafe_code)]
 
 use cortex_m::asm::delay;
-use debouncr::{debounce_12, Debouncer, Edge, Repeat12};
+use debouncr::{debounce_stateful_12, DebouncerStateful, Edge, Repeat12};
 use embedded_hal::digital::v2::{InputPin, OutputPin};
 use panic_rtt_target as _;
 use rtic::app;
@@ -55,8 +55,8 @@ const APP: () = {
         people_counter: u8,
 
         // Debouncing state
-        debounce_up: Debouncer<u16, Repeat12>,
-        debounce_down: Debouncer<u16, Repeat12>,
+        debounce_up: DebouncerStateful<u16, Repeat12>,
+        debounce_down: DebouncerStateful<u16, Repeat12>,
     }
 
     /// Initialization happens here.
@@ -147,8 +147,8 @@ const APP: () = {
             led_pwr,
             led_wifi,
             tubes,
-            debounce_up: debounce_12(),
-            debounce_down: debounce_12(),
+            debounce_up: debounce_stateful_12(false),
+            debounce_down: debounce_stateful_12(false),
         }
     }
 
