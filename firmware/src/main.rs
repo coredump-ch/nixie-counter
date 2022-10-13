@@ -22,13 +22,15 @@ mod app {
     use cortex_m::asm::delay;
     use debouncr::{debounce_stateful_12, DebouncerStateful, Edge, Repeat12};
     use rtt_target::{rprintln, rtt_init_print};
-    use stm32f1xx_hal::gpio::{gpioa, gpiob, Input, Output, PullUp, PushPull};
-    use stm32f1xx_hal::pac;
-    use stm32f1xx_hal::prelude::*;
-    use stm32f1xx_hal::time::Hertz;
+    use stm32f1xx_hal::{
+        gpio::{gpioa, gpiob, Input, Output, PullUp, PushPull},
+        pac,
+        prelude::*,
+    };
     use systick_monotonic::{ExtU64, Systick};
 
     use super::nixie::{NixieTube, NixieTubePair};
+
     #[monotonic(binds = SysTick, default = true)]
     type SystickMonotonic = Systick<1000>;
 
@@ -100,9 +102,9 @@ mod app {
         // Clock configuration
         let _clocks = rcc
             .cfgr
-            .use_hse(8.mhz())
-            .sysclk(Hertz(super::FREQUENCY))
-            .pclk1(24.mhz())
+            .use_hse(8.MHz())
+            .sysclk(super::FREQUENCY.Hz())
+            .pclk1(24.MHz())
             .freeze(&mut flash.acr);
 
         // Set up toggle inputs
@@ -198,7 +200,7 @@ mod app {
         }
 
         // Re-schedule the timer interrupt every 200ms
-        poll_buttons::spawn_at(monotonics::now() + 200.millis()).unwrap();
+        poll_buttons::spawn_at(monotonics::now() + ExtU64::millis(200)).unwrap();
     }
 
     /// The "up" switch was pushed.
