@@ -1,0 +1,12 @@
+[default.general]
+chip = "STM32F103C8"
+
+[default.probe]
+protocol = "Swd"
+
+[default.flashing]
+enabled = true
+restore_unwritten_bytes = false
+
+[default.rtt]
+enabled = true
