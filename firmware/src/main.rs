@@ -199,8 +199,8 @@ mod app {
             pushed_down::spawn().unwrap();
         }
 
-        // Re-schedule the timer interrupt every 200ms
-        poll_buttons::spawn_at(monotonics::now() + ExtU64::millis(200)).unwrap();
+        // Re-schedule the timer interrupt every 200µs
+        poll_buttons::spawn_at(monotonics::now() + ExtU64::micros(200)).unwrap();
     }
 
     /// The "up" switch was pushed.
