@@ -6,15 +6,16 @@ name = "nixie-counter"
 version = "0.1.0"
 
 [dependencies]
-cortex-m = "0.6.0"
-cortex-m-rt = "0.6.10"
-cortex-m-rtic = "0.5"
-debouncr = "0.1.2"
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
+cortex-m-rtic = "1.1"
+debouncr = "0.2.2"
 embedded-hal = "0.2"
 panic-rtt-target = { version = "0.1.0", features = ["cortex-m"] }
-stm32f1 = { version = "0.9", features = ["stm32f103", "rt"] }
-stm32f1xx-hal = { version = "0.5", features = ["stm32f103", "medium", "rt"] }
-rtt-target = { version = "0.1", features = ["cortex-m"] }
+stm32f1 = { version = "0.14", features = ["stm32f103", "rt"] }
+stm32f1xx-hal = { version = "0.9", features = ["stm32f103", "medium", "rtic"] }
+systick-monotonic = "1"
+rtt-target = { version = "0.3", features = ["cortex-m"] }
 
 [[bin]]
 name = "nixie-counter"
