@@ -14,9 +14,6 @@ rustflags = [
   # "-C", "linker=arm-none-eabi-gcc",
   # "-C", "link-arg=-Wl,-Tlink.x",
   # "-C", "link-arg=-nostartfiles",
-
-  # Add support for defmt
-  "-C", "link-arg=-Tdefmt.x",
 ]
 
 [build]

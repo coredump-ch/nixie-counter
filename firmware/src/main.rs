@@ -4,8 +4,6 @@
 
 use core::sync::atomic::{self, Ordering};
 
-use defmt_rtt as _;
-
 mod timer;
 
 #[rtic::app(
@@ -166,7 +164,6 @@ mod app {
 #[panic_handler]
 fn core_panic(_info: &core::panic::PanicInfo) -> ! {
     cortex_m::interrupt::disable();
-    defmt::error!("Panic!");
     loop {
         atomic::compiler_fence(Ordering::SeqCst);
     }
