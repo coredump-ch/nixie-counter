@@ -5,7 +5,7 @@
 The easiest way is with cargo-embed:
 
     $ cargo install cargo-embed
-    $ cargo embed
+    $ DEFMT_LOG=debug cargo embed --release
 
 The nice advantage is that you immediately get RTT support.
 

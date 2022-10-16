@@ -3,7 +3,9 @@
 #![deny(unsafe_code)]
 #![allow(clippy::type_complexity)]
 
-use panic_rtt_target as _;
+use core::sync::atomic::{self, Ordering};
+
+use defmt_rtt as _;
 
 mod nixie;
 
@@ -21,7 +23,7 @@ const SELFTEST_DELAY: u32 = FREQUENCY / 10; // ~0.1s
 mod app {
     use cortex_m::asm::delay;
     use debouncr::{debounce_stateful_12, DebouncerStateful, Edge, Repeat12};
-    use rtt_target::{rprintln, rtt_init_print};
+    use defmt::unwrap;
     use stm32f1xx_hal::{
         gpio::{gpioa, gpiob, Input, Output, PullUp, PushPull},
         pac,
@@ -77,8 +79,7 @@ mod app {
     /// app attribute.
     #[init()]
     fn init(ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics) {
-        rtt_init_print!();
-        rprintln!("init");
+        defmt::info!("init");
 
         // Cortex-M peripherals
         let core: cortex_m::Peripherals = ctx.core;
@@ -112,7 +113,7 @@ mod app {
         let btn_dn = gpioa.pa8.into_pull_up_input(&mut gpioa.crh);
 
         // Schedule polling timer for toggle switch
-        poll_buttons::spawn().unwrap();
+        unwrap!(poll_buttons::spawn());
 
         // Set up status LEDs and blink
         let mut led_pwr = pb3.into_push_pull_output(&mut gpiob.crl);
@@ -182,7 +183,7 @@ mod app {
         local = [btn_up, btn_dn, debounce_up, debounce_down],
     )]
     fn poll_buttons(ctx: poll_buttons::Context) {
-        rprintln!("poll_buttons");
+        defmt::trace!("poll_buttons");
         // Poll GPIOs
         let up_pushed: bool = ctx.local.btn_up.is_low();
         let down_pushed: bool = ctx.local.btn_dn.is_low();
@@ -193,14 +194,14 @@ mod app {
 
         // Schedule state change handlers
         if up_edge == Some(Edge::Rising) {
-            pushed_up::spawn().unwrap();
+            unwrap!(pushed_up::spawn());
         }
         if down_edge == Some(Edge::Rising) {
-            pushed_down::spawn().unwrap();
+            unwrap!(pushed_down::spawn());
         }
 
         // Re-schedule the timer interrupt every 200µs
-        poll_buttons::spawn_at(monotonics::now() + ExtU64::micros(200)).unwrap();
+        unwrap!(poll_buttons::spawn_at(monotonics::now() + ExtU64::micros(200)));
     }
 
     /// The "up" switch was pushed.
@@ -219,5 +220,22 @@ mod app {
             *ctx.shared.people_counter -= 1;
         }
         ctx.shared.tubes.show(*ctx.shared.people_counter);
+    }
+}
+
+#[inline(never)]
+#[panic_handler]
+fn core_panic(_info: &core::panic::PanicInfo) -> ! {
+    cortex_m::interrupt::disable();
+    defmt::error!("Panic!");
+    loop {
+        atomic::compiler_fence(Ordering::SeqCst);
+    }
+}
+
+#[defmt::panic_handler]
+fn defmt_panic() -> ! {
+    loop {
+        atomic::compiler_fence(Ordering::SeqCst);
     }
 }

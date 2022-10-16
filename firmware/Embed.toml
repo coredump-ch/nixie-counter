@@ -10,3 +10,6 @@ restore_unwritten_bytes = false
 
 [default.rtt]
 enabled = true
+channels = [
+    { up = 0, up_mode = "BlockIfFull", format = "Defmt" },
+]
