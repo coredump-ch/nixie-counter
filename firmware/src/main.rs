@@ -122,7 +122,12 @@ mod app {
     /// access to Cortex-M and device specific peripherals through the `core`
     /// and `device` variables, which are injected in the scope of init by the
     /// app attribute.
-    #[init()]
+    #[init(
+        local = [
+            res_queue: BBBuffer<RES_CAPACITY> = BBBuffer::new(),
+            urc_queue: BBBuffer<URC_CAPACITY> = BBBuffer::new(),
+        ]
+    )]
     fn init(ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics) {
         defmt::info!("init");
 
@@ -209,11 +214,9 @@ mod app {
         let (esp_tx, esp_rx) = serial.split();
 
         // Create static queues for ATAT
-        static mut RES_QUEUE: BBBuffer<RES_CAPACITY> = BBBuffer::new();
-        static mut URC_QUEUE: BBBuffer<URC_CAPACITY> = BBBuffer::new();
         let queues = atat::Queues {
-            res_queue: unsafe { RES_QUEUE.try_split_framed().unwrap() },
-            urc_queue: unsafe { URC_QUEUE.try_split_framed().unwrap() },
+            res_queue: ctx.local.res_queue.try_split_framed().unwrap(),
+            urc_queue: ctx.local.urc_queue.try_split_framed().unwrap(),
         };
 
         // Instantiate ATAT client & ingress manager
