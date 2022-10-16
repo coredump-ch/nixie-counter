@@ -1,5 +1,7 @@
 # `nixie-counter` firmware
 
+This code can be flashed onto a blue pill (STM32F103).
+
 ## Flashing
 
 The easiest way is with cargo-embed:
