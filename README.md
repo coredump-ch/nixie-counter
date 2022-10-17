@@ -5,7 +5,9 @@
 PCB for a physical "people now present" counter that sends it data directly to
 the [SpaceAPI](https://spaceapi.io/).
 
-![Photo](nixie_counter.jpg)
+![Photo without enclosure](nixie_counter.jpg)
+
+![Photo with enclosure](nixie_counter_enclosure.jpg)
 
 **Microcontroller**
 
