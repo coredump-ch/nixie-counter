@@ -117,6 +117,7 @@ mod app {
         atat_ingress: AtatIngress,
 
         // ESP WiFi adapter
+        #[lock_free]
         wifi_adapter: EspWifiAdapter<pac::USART1>,
     }
 
@@ -293,9 +294,7 @@ mod app {
     /// pin inputs. This means that if the interrupt is scheduled every 1 ms
     /// and the input pin becomes high, the task will fire after 12 ms. Every
     /// low input will reset the whole state though.
-    #[task(
-        local = [btn_up, btn_dn, debounce_up, debounce_down],
-    )]
+    #[task(local = [btn_up, btn_dn, debounce_up, debounce_down], priority = 2)]
     fn poll_buttons(ctx: poll_buttons::Context) {
         // Poll GPIOs
         let up_pushed: bool = ctx.local.btn_up.is_low();
@@ -313,14 +312,14 @@ mod app {
             unwrap!(pushed_down::spawn());
         }
 
-        // Re-schedule the timer interrupt every 200µs
+        // Re-schedule the timer interrupt every 1ms
         unwrap!(poll_buttons::spawn_at(
-            monotonics::now() + ExtU64::micros(200)
+            monotonics::now() + ExtU64::millis(1)
         ));
     }
 
     /// The "up" switch was pushed.
-    #[task(shared = [people_counter, tubes])]
+    #[task(shared = [people_counter, tubes], priority = 2)]
     fn pushed_up(ctx: pushed_up::Context) {
         if *ctx.shared.people_counter < 99 {
             *ctx.shared.people_counter += 1;
@@ -329,7 +328,7 @@ mod app {
     }
 
     /// The "down" switch was pushed.
-    #[task(shared = [people_counter, tubes])]
+    #[task(shared = [people_counter, tubes], priority = 2)]
     fn pushed_down(ctx: pushed_down::Context) {
         if *ctx.shared.people_counter > 0 {
             *ctx.shared.people_counter -= 1;
@@ -338,36 +337,35 @@ mod app {
     }
 
     #[task(shared = [wifi_adapter], local = [led_wifi])]
-    fn wifi_status_loop(mut ctx: wifi_status_loop::Context) {
+    fn wifi_status_loop(ctx: wifi_status_loop::Context) {
         defmt::trace!("wifi_status_loop");
 
-        // Check join state, update LED
-        ctx.shared.wifi_adapter.lock(|adapter| {
-            // Turn on WiFi LED if we're connected and have an IP assigned
-            let join_state = adapter.get_join_status();
-            let connected = join_state.connected && join_state.ip_assigned;
-            let was_connected = ctx.local.led_wifi.is_set_high();
-            if connected && !was_connected {
-                defmt::info!("WiFi connected");
-            } else if !connected && was_connected {
-                defmt::info!("WiFi disconnected");
-            }
-            ctx.local.led_wifi.set_state(PinState::from(connected));
-        });
+        // Turn on WiFi LED if we're connected and have an IP assigned
+        let join_state = ctx.shared.wifi_adapter.get_join_status();
+        let connected = join_state.connected && join_state.ip_assigned;
+        let was_connected = ctx.local.led_wifi.is_set_high();
+        if connected && !was_connected {
+            defmt::info!("WiFi connected");
+        } else if !connected && was_connected {
+            defmt::info!("WiFi disconnected");
+        }
+        ctx.local.led_wifi.set_state(PinState::from(connected));
 
         // Re-schedule WiFi status check every 1s
         wifi_status_loop::spawn_at(monotonics::now() + ExtU64::millis(1000)).ok();
     }
 
     #[task(shared = [wifi_adapter])]
-    fn wifi_join(mut ctx: wifi_join::Context) {
+    fn wifi_join(ctx: wifi_join::Context) {
         defmt::info!("Joining WiFi with SSID \"{}\"", super::WIFI_SSID);
-        ctx.shared.wifi_adapter.lock(|adapter| {
-            match adapter.join(super::WIFI_SSID, super::WIFI_PASSWORD) {
-                Ok(_) => defmt::info!("WiFi joined"),
-                Err(_e) => defmt::error!("Failed to join WiFi"),
-            }
-        });
+        match ctx
+            .shared
+            .wifi_adapter
+            .join(super::WIFI_SSID, super::WIFI_PASSWORD)
+        {
+            Ok(_) => defmt::info!("WiFi joined"),
+            Err(_e) => defmt::error!("Failed to join WiFi"),
+        }
     }
 
     #[task(shared = [atat_ingress], priority = 2)]
