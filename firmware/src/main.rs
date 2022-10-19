@@ -116,6 +116,10 @@ mod app {
         // ATAT ingress manager
         atat_ingress: AtatIngress,
 
+        // Connection status
+        #[lock_free]
+        wifi_connected: bool,
+
         // ESP WiFi adapter
         #[lock_free]
         wifi_adapter: EspWifiAdapter<pac::USART1>,
@@ -270,6 +274,7 @@ mod app {
             people_counter: 0,
             atat_ingress,
             wifi_adapter,
+            wifi_connected: false,
         };
         let local_resources = LocalResources {
             btn_up,
@@ -336,19 +341,20 @@ mod app {
         ctx.shared.tubes.show(*ctx.shared.people_counter);
     }
 
-    #[task(shared = [wifi_adapter], local = [led_wifi])]
+    #[task(shared = [wifi_adapter, wifi_connected], local = [led_wifi])]
     fn wifi_status_loop(ctx: wifi_status_loop::Context) {
         defmt::trace!("wifi_status_loop");
 
         // Turn on WiFi LED if we're connected and have an IP assigned
         let join_state = ctx.shared.wifi_adapter.get_join_status();
         let connected = join_state.connected && join_state.ip_assigned;
-        let was_connected = ctx.local.led_wifi.is_set_high();
+        let was_connected = *ctx.shared.wifi_connected;
         if connected && !was_connected {
             defmt::info!("WiFi connected");
         } else if !connected && was_connected {
             defmt::info!("WiFi disconnected");
         }
+        *ctx.shared.wifi_connected = connected;
         ctx.local.led_wifi.set_state(PinState::from(connected));
 
         // Re-schedule WiFi status check every 1s
