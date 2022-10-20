@@ -22,9 +22,10 @@ mod app {
     use cortex_m::asm::delay;
     use debouncr::{debounce_stateful_12, DebouncerStateful, Edge, Repeat12};
     use defmt::unwrap;
+    use embedded_nal::{Ipv4Addr, SocketAddr, TcpClientStack};
     use esp_at_nal::{
         urc::URCMessages as UrcMessages,
-        wifi::{self, WifiAdapter},
+        wifi::{self, WifiAdapter}, stack::Socket,
     };
     use stm32f1xx_hal::{
         gpio::{gpioa, gpiob, Input, Output, PinState, PullUp, PushPull},
@@ -123,6 +124,10 @@ mod app {
         // ESP WiFi adapter
         #[lock_free]
         wifi_adapter: EspWifiAdapter<pac::USART1>,
+
+        // ESP socket
+        #[lock_free]
+        esp_socket: Option<Socket>,
     }
 
     #[local]
@@ -261,12 +266,15 @@ mod app {
         // Spawn ATAT digest loop
         at_digest_loop::spawn().ok();
 
-        // Instantiate ESP AT adapter
+        // Instantiate ESP AT adapter and open a socket
         let wifi_adapter: EspWifiAdapter<_> = wifi::Adapter::new(atat_client, timer_esp);
 
+        // Spawn socket creation task
+        unwrap!(create_socket::spawn());
+
         // Spawn WiFi status loop and join tasks
-        wifi_status_loop::spawn().ok();
-        wifi_join::spawn().ok();
+        unwrap!(wifi_status_loop::spawn());
+        unwrap!(wifi_join::spawn());
 
         // Assign resources
         let shared_resources = SharedResources {
@@ -274,6 +282,7 @@ mod app {
             people_counter: 0,
             atat_ingress,
             wifi_adapter,
+            esp_socket: None,
             wifi_connected: false,
         };
         let local_resources = LocalResources {
@@ -326,6 +335,7 @@ mod app {
     /// The "up" switch was pushed.
     #[task(shared = [people_counter, tubes], priority = 2)]
     fn pushed_up(ctx: pushed_up::Context) {
+        defmt::debug!("pushed up");
         if *ctx.shared.people_counter < 99 {
             *ctx.shared.people_counter += 1;
         }
@@ -335,10 +345,22 @@ mod app {
     /// The "down" switch was pushed.
     #[task(shared = [people_counter, tubes], priority = 2)]
     fn pushed_down(ctx: pushed_down::Context) {
+        defmt::debug!("pushed down");
         if *ctx.shared.people_counter > 0 {
             *ctx.shared.people_counter -= 1;
         }
         ctx.shared.tubes.show(*ctx.shared.people_counter);
+    }
+
+    #[task(shared = [wifi_adapter, esp_socket])]
+    fn create_socket(ctx: create_socket::Context) {
+        if ctx.shared.esp_socket.is_none() {
+            let esp_socket = unwrap!(ctx.shared.wifi_adapter.socket().map_err(|_| "Could not create socket"));
+            *ctx.shared.esp_socket = Some(esp_socket);
+            defmt::info!("Socket created");
+        } else {
+            defmt::info!("Socket already present");
+        }
     }
 
     #[task(shared = [wifi_adapter, wifi_connected], local = [led_wifi])]
