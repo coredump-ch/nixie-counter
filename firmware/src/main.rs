@@ -24,9 +24,12 @@ mod app {
     use defmt::unwrap;
     use embedded_nal::{Ipv4Addr, SocketAddr, TcpClientStack};
     use esp_at_nal::{
+        stack::{Error as EspError, Socket},
         urc::URCMessages as UrcMessages,
-        wifi::{self, WifiAdapter}, stack::Socket,
+        wifi::{self, WifiAdapter},
     };
+    use heapless::String;
+    use numtoa::NumToA;
     use stm32f1xx_hal::{
         gpio::{gpioa, gpiob, Input, Output, PinState, PullUp, PushPull},
         pac,
@@ -111,7 +114,6 @@ mod app {
         >,
 
         // Counter
-        #[lock_free]
         people_counter: u8,
 
         // ATAT ingress manager
@@ -267,7 +269,8 @@ mod app {
         at_digest_loop::spawn().ok();
 
         // Instantiate ESP AT adapter and open a socket
-        let wifi_adapter: EspWifiAdapter<_> = wifi::Adapter::new(atat_client, timer_esp);
+        let mut wifi_adapter: EspWifiAdapter<_> = wifi::Adapter::new(atat_client, timer_esp);
+        wifi_adapter.set_send_timeout_ms(30000);
 
         // Spawn socket creation task
         unwrap!(create_socket::spawn());
@@ -334,28 +337,115 @@ mod app {
 
     /// The "up" switch was pushed.
     #[task(shared = [people_counter, tubes], priority = 2)]
-    fn pushed_up(ctx: pushed_up::Context) {
+    fn pushed_up(mut ctx: pushed_up::Context) {
         defmt::debug!("pushed up");
-        if *ctx.shared.people_counter < 99 {
-            *ctx.shared.people_counter += 1;
-        }
-        ctx.shared.tubes.show(*ctx.shared.people_counter);
+        ctx.shared.people_counter.lock(|counter| {
+            if *counter < 99 {
+                *counter += 1;
+            }
+            ctx.shared.tubes.show(*counter);
+        });
+        send_current_count::spawn().ok();
     }
 
     /// The "down" switch was pushed.
     #[task(shared = [people_counter, tubes], priority = 2)]
-    fn pushed_down(ctx: pushed_down::Context) {
+    fn pushed_down(mut ctx: pushed_down::Context) {
         defmt::debug!("pushed down");
-        if *ctx.shared.people_counter > 0 {
-            *ctx.shared.people_counter -= 1;
+        ctx.shared.people_counter.lock(|counter| {
+            if *counter > 0 {
+                *counter -= 1;
+            }
+            ctx.shared.tubes.show(*counter);
+        });
+        send_current_count::spawn().ok();
+    }
+
+    /// Update the counter on the server
+    #[task(shared = [people_counter, wifi_adapter, wifi_connected, esp_socket])]
+    fn send_current_count(mut ctx: send_current_count::Context) {
+        // Ensure we're connected and have an active socket
+        if !*ctx.shared.wifi_connected {
+            // Not connected, we can't send data
+            return;
         }
-        ctx.shared.tubes.show(*ctx.shared.people_counter);
+        let socket = match ctx.shared.esp_socket {
+            Some(socket) => socket,
+            None => return, // Socket not created yet?
+        };
+
+        // Get current people count
+        let count = ctx.shared.people_counter.lock(|counter| *counter);
+
+        // Connect to status server
+        let addr = SocketAddr::from((Ipv4Addr::from([94, 230, 210, 85]), 80));
+        defmt::debug!("Connecting socket");
+        match ctx.shared.wifi_adapter.connect(socket, addr) {
+            Ok(_) => defmt::debug!("Socket connected"),
+            Err(_e) => {
+                defmt::warn!("Could not connect to server");
+                return;
+            }
+        }
+
+        // Build payload
+        let mut buf = [0u8; 2]; // 0-99
+        let mut payload = String::<8>::from("value=");
+        unwrap!(payload.push_str(count.numtoa_str(10, &mut buf)));
+
+        // Create HTTP request
+        let content_length = payload.len();
+        let mut request = String::<192>::new();
+        unwrap!(request.push_str("PUT /sensors/people_now_present/ HTTP/1.1\r\n"));
+        unwrap!(request.push_str("Content-Type: application/x-www-form-urlencoded\r\n"));
+        unwrap!(request.push_str("Content-Length: "));
+        unwrap!(request.push_str(content_length.numtoa_str(10, &mut buf)));
+        unwrap!(request.push_str("\r\n"));
+        unwrap!(request.push_str("Host: status.crdmp.ch\r\n"));
+        unwrap!(request.push_str("User-Agent: Nixie counter\r\n"));
+        unwrap!(request.push_str("\r\n"));
+        unwrap!(request.push_str(&payload));
+        unwrap!(request.push_str("\r\n"));
+
+        // Send HTTP request
+        defmt::debug!("Sending HTTP request with payload {}", payload.as_str());
+        match nb::block!(ctx.shared.wifi_adapter.send(socket, request.as_bytes())) {
+            Ok(_) => defmt::info!("Sent count {}", count),
+            Err(e) => {
+                defmt::warn!("Could not send data to server: {}", 
+                match e {
+                    EspError::EnablingMultiConnectionsFailed(_) => "EnablingMultiConnectionsFailed",
+                    EspError::EnablingPassiveSocketModeFailed(_) => "EnablingPassiveSocketModeFailed",
+                    EspError::ConnectError(_) => "ConnectError",
+                    EspError::TransmissionStartFailed(_) => "TransmissionStartFailed",
+                    EspError::SendFailed(_) => "SendFailed",
+                    EspError::ReceiveFailed(_) => "ReceiveFailed",
+                    EspError::CloseError(_) => "CloseError",
+                    EspError::PartialSend => "PartialSend",
+                    EspError::UnconfirmedSocketState => "UnconfirmedSocketState",
+                    EspError::NoSocketAvailable => "NoSocketAvailable",
+                    EspError::AlreadyConnected => "AlreadyConnected",
+                    EspError::SocketUnconnected => "SocketUnconnected",
+                    EspError::ClosingSocket => "ClosingSocket",
+                    EspError::ReceiveOverflow => "ReceiveOverflow",
+                    EspError::UnexpectedWouldBlock => "UnexpectedWouldBlock",
+                    EspError::TimerError => "TimerError",
+                });
+                return;
+            }
+        }
+
+        // Note: Fire-and-forget is sufficient, we do not process the response
     }
 
     #[task(shared = [wifi_adapter, esp_socket])]
     fn create_socket(ctx: create_socket::Context) {
         if ctx.shared.esp_socket.is_none() {
-            let esp_socket = unwrap!(ctx.shared.wifi_adapter.socket().map_err(|_| "Could not create socket"));
+            let esp_socket = unwrap!(ctx
+                .shared
+                .wifi_adapter
+                .socket()
+                .map_err(|_| "Could not create socket"));
             *ctx.shared.esp_socket = Some(esp_socket);
             defmt::info!("Socket created");
         } else {
@@ -373,6 +463,7 @@ mod app {
         let was_connected = *ctx.shared.wifi_connected;
         if connected && !was_connected {
             defmt::info!("WiFi connected");
+            unwrap!(send_current_count::spawn());
         } else if !connected && was_connected {
             defmt::info!("WiFi disconnected");
         }
