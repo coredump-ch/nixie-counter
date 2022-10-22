@@ -48,7 +48,8 @@ mod app {
     const FREQUENCY_SYSTEM: u32 = 48_000_000;
 
     // The frequency used for ATAT/ESP timers
-    const FREQUENCY_ATAT: u32 = 1_000_000;
+    const FREQUENCY_ATAT: u32 = 1_000;
+    const FREQUENCY_ESP: u32 = 1_000;
 
     // How fast (in CPU cycles) the toggle switch should be polled
     const SELFTEST_DELAY: u32 = FREQUENCY_SYSTEM / 20; // ~0.05s
@@ -92,8 +93,8 @@ mod app {
 
     type EspWifiAdapter<USART> = wifi::Adapter<
         AtatClient<USART>,
-        Counter<pac::TIM2, FREQUENCY_ATAT>,
-        FREQUENCY_ATAT,
+        Counter<pac::TIM2, FREQUENCY_ESP>,
+        FREQUENCY_ESP,
         ESP_TX_SIZE,
         ESP_RX_SIZE,
     >;
@@ -271,8 +272,8 @@ mod app {
         esp_rx.listen();
 
         // Timers for ATAT and esp-at-nal
-        let timer_atat = device.TIM1.counter_us(&clocks);
-        let timer_esp = device.TIM2.counter_us(&clocks);
+        let timer_atat = device.TIM1.counter_ms(&clocks);
+        let timer_esp = device.TIM2.counter_ms(&clocks);
 
         // Create static queues for ATAT
         let queues = atat::Queues {
