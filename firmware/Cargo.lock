@@ -271,8 +271,9 @@ dependencies = [
 
 [[package]]
 name = "esp-at-nal"
-version = "0.1.0"
-source = "git+https://github.com/dbrgn/rt-esp-at-nal/?branch=no-alloc#5d04af1713c63b3411b9e61d69970f2abf1edbe1"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "750d564735a668f9169165762c54c6fe783914ca1dad2528d91f4597eaca8666"
 dependencies = [
  "atat",
  "base16",
