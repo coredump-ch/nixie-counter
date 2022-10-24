@@ -273,9 +273,6 @@ mod app {
         let mut wifi_adapter: EspWifiAdapter<_> = wifi::Adapter::new(atat_client, timer_esp);
         wifi_adapter.set_send_timeout_ms(30000);
 
-        // Spawn socket creation task
-        unwrap!(create_socket::spawn());
-
         // Spawn WiFi status loop and join tasks
         unwrap!(wifi_status_loop::spawn());
         unwrap!(wifi_join::spawn());
@@ -370,10 +367,7 @@ mod app {
             // Not connected, we can't send data
             return;
         }
-        let socket = match ctx.shared.esp_socket {
-            Some(socket) => socket,
-            None => return, // Socket not created yet?
-        };
+        let socket = ensure_socket(ctx.shared.esp_socket, ctx.shared.wifi_adapter);
 
         // Get current people count
         let count = ctx.shared.people_counter.lock(|counter| *counter);
@@ -422,18 +416,20 @@ mod app {
         // Note: Fire-and-forget is sufficient, we do not process the response
     }
 
-    #[task(shared = [wifi_adapter, esp_socket])]
-    fn create_socket(ctx: create_socket::Context) {
-        if ctx.shared.esp_socket.is_none() {
-            let esp_socket = unwrap!(ctx
-                .shared
-                .wifi_adapter
-                .socket()
-                .map_err(|_| "Could not create socket"));
-            *ctx.shared.esp_socket = Some(esp_socket);
-            defmt::info!("Socket created");
-        } else {
-            defmt::info!("Socket already present");
+    fn ensure_socket<'a, 'b>(
+        socket_opt: &'a mut Option<Socket>,
+        wifi_adapter: &'b mut EspWifiAdapter<pac::USART1>,
+    ) -> &'a mut Socket {
+        match socket_opt {
+            Some(socket) => socket,
+            None => {
+                defmt::debug!("Creating socket");
+                let esp_socket =
+                    unwrap!(wifi_adapter.socket().map_err(|_| "Could not create socket"));
+                *socket_opt = Some(esp_socket);
+                defmt::info!("Socket created");
+                socket_opt.as_mut().unwrap()
+            }
         }
     }
 
