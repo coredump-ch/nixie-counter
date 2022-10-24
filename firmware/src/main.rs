@@ -15,7 +15,7 @@ const WIFI_PASSWORD: &str = env!("WIFI_PASSWORD");
 #[rtic::app(
     device = stm32f1::stm32f103,
     peripherals = true,
-    dispatchers = [SPI1, SPI2],
+    dispatchers = [SPI1, SPI2, SPI3],
 )]
 mod app {
     use bbqueue::BBBuffer;
