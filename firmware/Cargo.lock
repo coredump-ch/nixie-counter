@@ -272,11 +272,11 @@ dependencies = [
 [[package]]
 name = "esp-at-nal"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "750d564735a668f9169165762c54c6fe783914ca1dad2528d91f4597eaca8666"
+source = "git+https://github.com/dbrgn/rt-esp-at-nal/?branch=defmt-errors#b8cc67f9fb456f753de9d7f2e1ddf7e74b3286b3"
 dependencies = [
  "atat",
  "base16",
+ "defmt",
  "embedded-nal",
  "fugit",
  "fugit-timer",

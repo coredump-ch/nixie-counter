@@ -16,7 +16,7 @@ defmt = "0.3"
 defmt-rtt = "0.4"
 embedded-hal = "0.2"
 embedded-nal = "0.6"
-esp-at-nal = "0.1.2"
+esp-at-nal = { git = "https://github.com/dbrgn/rt-esp-at-nal/", branch = "defmt-errors", features = ["defmt"] }
 fugit = "0.3.3"
 fugit-timer = "0.1.2"
 heapless = "0.7"

@@ -150,27 +150,6 @@ mod app {
         esp_rx: Rx<pac::USART1>,
     }
 
-    fn error_to_str(error: EspError) -> &'static str {
-        match error {
-            EspError::EnablingMultiConnectionsFailed(_) => "EnablingMultiConnectionsFailed",
-            EspError::EnablingPassiveSocketModeFailed(_) => "EnablingPassiveSocketModeFailed",
-            EspError::ConnectError(_) => "ConnectError",
-            EspError::TransmissionStartFailed(_) => "TransmissionStartFailed",
-            EspError::SendFailed(_) => "SendFailed",
-            EspError::ReceiveFailed(_) => "ReceiveFailed",
-            EspError::CloseError(_) => "CloseError",
-            EspError::PartialSend => "PartialSend",
-            EspError::UnconfirmedSocketState => "UnconfirmedSocketState",
-            EspError::NoSocketAvailable => "NoSocketAvailable",
-            EspError::AlreadyConnected => "AlreadyConnected",
-            EspError::SocketUnconnected => "SocketUnconnected",
-            EspError::ClosingSocket => "ClosingSocket",
-            EspError::ReceiveOverflow => "ReceiveOverflow",
-            EspError::UnexpectedWouldBlock => "UnexpectedWouldBlock",
-            EspError::TimerError => "TimerError",
-        }
-    }
-
     /// Initialization happens here.
     ///
     /// The init function will run with interrupts disabled and has exclusive
@@ -406,7 +385,7 @@ mod app {
             Ok(_) => defmt::debug!("Socket connected"),
             Err(EspError::AlreadyConnected) => defmt::debug!("Socket already connected"),
             Err(e) => {
-                defmt::warn!("Could not connect to server: {}", error_to_str(e));
+                defmt::warn!("Could not connect to server: {}", e);
                 return;
             }
         }
@@ -435,7 +414,7 @@ mod app {
         match nb::block!(ctx.shared.wifi_adapter.send(socket, request.as_bytes())) {
             Ok(_) => defmt::info!("Sent count {}", count),
             Err(e) => {
-                defmt::warn!("Could not send data to server: {}", error_to_str(e));
+                defmt::warn!("Could not send data to server: {}", e);
                 return;
             }
         }
