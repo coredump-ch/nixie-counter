@@ -6,6 +6,7 @@
  (version "0.3")
  (created 2019-09-23T20:29:55Z)
  (deprecated false)
+ (generated_by "")
  (category 30643e64-b131-4eb5-b956-ceb3cb02413a)
  (schematic_only false)
  (default_value "{{ DEVICE or COMPONENT }}")

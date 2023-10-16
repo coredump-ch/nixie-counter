@@ -1,11 +1,12 @@
 (librepcb_device ca7ac353-cbf0-40ad-9a86-2a6da38b836c
  (name "Salecom T8014A-UHBx")
- (description "Momentary miniature SPDT toggle switch MOM-OFF-MOM. Part of the SH T80-T series.\n\nThis device uses a footprint where the solder lug terminals must be manually connected with the three pads using short wires.\n\n[NON-GENERIC, DON\'T PUBLISH]")
+ (description "Momentary miniature SPDT toggle switch MOM-OFF-MOM. Part of the SH T80-T series.\n\nThis device uses a footprint where the solder lug terminals must be manually connected with the three pads using short wires.\n\n[NON-GENERIC, DON'T PUBLISH]")
  (keywords "sh t80-t,salecom,spdt,momentary,switch")
  (author "Danilo Bargen")
  (version "0.1")
  (created 2019-10-26T21:33:04Z)
  (deprecated false)
+ (generated_by "")
  (category e29f0cb3-ef6d-4203-b854-d75150cbae0b)
  (component a07aabe2-4127-40a9-9976-db1d6090c667)
  (package 3dfff181-f97a-4aea-b1e2-762b6222182c)
