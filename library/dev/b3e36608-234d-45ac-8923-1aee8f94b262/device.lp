@@ -1,11 +1,12 @@
 (librepcb_device b3e36608-234d-45ac-8923-1aee8f94b262
  (name "Blue Pill")
- (description "A popular, ultra-cheap and compact STM32F103 board. 2x20 pins.\n\nSee http://wiki.stm32duino.com/index.php\?title=Blue_Pill for a description.")
+ (description "A popular, ultra-cheap and compact STM32F103 board. 2x20 pins.\n\nSee http://wiki.stm32duino.com/index.php?title=Blue_Pill for a description.")
  (keywords "bluepill, blue pill, stm32, stm32f103")
  (author "Danilo Bargen")
  (version "0.1")
  (created 2018-07-19T07:21:54Z)
  (deprecated false)
+ (generated_by "")
  (category e96d0dda-3100-4e68-8c33-e2a5bc80428b)
  (component b0b17c93-0f41-4b1b-9033-0b48339da9bc)
  (package 2ebdbce7-1852-453e-ac85-87c301a4865e)
