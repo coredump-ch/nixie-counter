@@ -278,7 +278,7 @@
   (lib_variant 9b047f44-b127-4509-8401-ce56f8a8f577)
   (name "U2") (value "{{MPN or DEVICE}}\nLDO 5V")
   (lock_assembly false)
-  (attribute "DATASHEET" (type string) (unit none) (value "http://www.ti.com/lit/ds/symlink/tlv1117.pdf"))
+  (attribute "DATASHEET" (type string) (unit none) (value "https://www.ti.com/lit/ds/symlink/tlv1117.pdf"))
   (attribute "DIGIKEY" (type string) (unit none) (value "296-21114-1-ND"))
   (device 64407a7b-0979-4c32-a776-5dc53f9d1e8a
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
