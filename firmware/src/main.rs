@@ -1,4 +1,7 @@
-use embedded_svc::wifi::{AuthMethod, ClientConfiguration, Configuration};
+use embedded_svc::{
+    http::client::Client as HttpClient,
+    wifi::{AuthMethod, ClientConfiguration, Configuration},
+};
 use esp_idf_svc::{
     eventloop::EspSystemEventLoop,
     hal::{
@@ -6,6 +9,8 @@ use esp_idf_svc::{
         prelude::Peripherals,
         task::block_on,
     },
+    http::client::EspHttpConnection,
+    io::Write,
     nvs::EspDefaultNvsPartition,
     timer::EspTaskTimerService,
     wifi::{AsyncWifi, EspWifi},
@@ -15,6 +20,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const WIFI_SSID: &str = env!("WIFI_SSID");
 const WIFI_PASS: &str = env!("WIFI_PASS");
+const SPACEAPI_SENSOR_ENDPOINT: &str = env!("SPACEAPI_SENSOR_ENDPOINT");
 
 fn main() -> anyhow::Result<()> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -43,13 +49,20 @@ fn main() -> anyhow::Result<()> {
     )?;
     block_on(connect_wifi(&mut wifi))?;
 
+    // Create HTTP client (without TLS support for now)
+    let mut client = HttpClient::wrap(EspHttpConnection::new(&Default::default())?);
+
     // Main loop
+    let mut count = 0usize;
     block_on(async {
         loop {
             button.wait_for_low().await?;
 
             log::info!("Pressed");
             led.toggle()?;
+
+            count += 1;
+            update_people_now_present(&mut client, count)?;
 
             button.wait_for_high().await?;
 
@@ -83,4 +96,41 @@ async fn connect_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<
     log::info!("Wifi netif up");
 
     Ok(())
+}
+
+/// Update the "people now present" sensor through HTTP.
+fn update_people_now_present(
+    client: &mut HttpClient<EspHttpConnection>,
+    people_count: usize,
+) -> anyhow::Result<()> {
+    // Prepare payload
+    let payload_string = format!("value={people_count}");
+    let payload = payload_string.as_bytes();
+
+    // Prepare headers and URL
+    let content_length_header = format!("{}", payload.len());
+    let headers = [
+        ("content-type", "application/x-www-form-urlencoded"),
+        ("content-length", &*content_length_header),
+    ];
+    let url = SPACEAPI_SENSOR_ENDPOINT;
+
+    // Send request
+    let mut request = client.put(url, &headers)?;
+    request.write_all(payload)?;
+    request.flush()?;
+    log::info!("-> PUT {}", url);
+    let response = request.submit()?;
+
+    // Process response
+    let status = response.status();
+    log::info!("<- {}", status);
+    if status == 204 {
+        log::info!("Successfully set people now present count to {people_count}");
+        Ok(())
+    } else {
+        anyhow::bail!(format!(
+            "Received unexpected HTTP {status} when sending status update"
+        ))
+    }
 }
