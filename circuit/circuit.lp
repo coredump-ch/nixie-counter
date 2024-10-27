@@ -276,7 +276,7 @@
  (component 5a9ce5b9-0a34-4d71-9609-ef0c9c731028
   (lib_component 54ad6c40-6cc8-43c6-b7b9-105be65de1da)
   (lib_variant 9b047f44-b127-4509-8401-ce56f8a8f577)
-  (name "U8") (value "{{MPN or DEVICE}}\nLDO 5V")
+  (name "U2") (value "{{MPN or DEVICE}}\nLDO 5V")
   (lock_assembly false)
   (attribute "DATASHEET" (type string) (unit none) (value "http://www.ti.com/lit/ds/symlink/tlv1117.pdf"))
   (attribute "DIGIKEY" (type string) (unit none) (value "296-21114-1-ND"))
@@ -324,7 +324,7 @@
  (component 78a98c36-2d95-46d0-87f7-b5981dc8eb19
   (lib_component f6542150-82a2-4a67-aec2-8a08ce0c55d2)
   (lib_variant 7a85c3f5-39d0-406e-abba-8393a7d27b56)
-  (name "L1") (value "Made At\nCoredump")
+  (name "L1") (value "Made at\nCoredump")
   (lock_assembly false)
   (device 6fb62718-a818-4229-8370-11813c372305
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
@@ -467,7 +467,7 @@
  (component bd8904c1-6e7f-438b-aebd-a547653b904a
   (lib_component b91cf23a-4f07-4b99-8f52-0b42304aef20)
   (lib_variant 0eebde17-6d45-4f73-95fe-3078a0f68ab6)
-  (name "LOGO1") (value "Made With\nLibrePCB")
+  (name "LOGO1") (value "Made with\nLibrePCB")
   (lock_assembly false)
   (device 7186a6b2-4042-451f-a698-288394ec67a7
   )
