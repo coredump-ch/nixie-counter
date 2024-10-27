@@ -634,6 +634,7 @@ name = "firmware"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "embedded-svc",
  "embuild",
  "esp-idf-svc",
  "log",
