@@ -88,6 +88,7 @@ fn main() -> anyhow::Result<()> {
         timer_service,
     )?;
     block_on(connect_wifi(&mut wifi))?;
+    led_wifi.set_high().context("Could not enable WiFi LED")?;
 
     // Create HTTP client (without TLS support for now)
     let mut client = HttpClient::wrap(EspHttpConnection::new(&Default::default())?);
