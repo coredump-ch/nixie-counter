@@ -8,7 +8,7 @@ use embedded_svc::{
 use esp_idf_svc::{
     eventloop::EspSystemEventLoop,
     hal::{
-        gpio::{IOPin, PinDriver},
+        gpio::{IOPin, OutputPin, PinDriver},
         prelude::Peripherals,
         task::block_on,
     },
@@ -19,8 +19,10 @@ use esp_idf_svc::{
     wifi::{AsyncWifi, EspWifi},
 };
 
+mod nixie;
 mod toggle_switch;
 
+use nixie::{NixieTube, NixieTubePair};
 use toggle_switch::{Direction, ToggleSwitch};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -48,12 +50,35 @@ fn main() -> anyhow::Result<()> {
         .timer_async()
         .context("Failed to initialize timer")?;
 
-    // Set up I/O pins
+    // Set up toggle switch
     let mut toggle_switch = ToggleSwitch::new(
         peripherals.pins.gpio1.downgrade(),
         peripherals.pins.gpio0.downgrade(),
     )?;
-    let mut led = PinDriver::output(peripherals.pins.gpio3)?;
+
+    // Set up LEDs
+    let mut led_pwr = PinDriver::output(peripherals.pins.gpio20)?;
+    let mut led_wifi = PinDriver::output(peripherals.pins.gpio21)?;
+    led_pwr.set_high().context("Could not enable power LED")?;
+
+    // Initialize tubes
+    let mut tubes = NixieTubePair::new(
+        NixieTube {
+            pin_a: PinDriver::output(peripherals.pins.gpio6.downgrade_output())?,
+            pin_b: PinDriver::output(peripherals.pins.gpio4.downgrade_output())?,
+            pin_c: PinDriver::output(peripherals.pins.gpio3.downgrade_output())?,
+            pin_d: PinDriver::output(peripherals.pins.gpio5.downgrade_output())?,
+        },
+        NixieTube {
+            pin_a: PinDriver::output(peripherals.pins.gpio9.downgrade_output())?,
+            pin_b: PinDriver::output(peripherals.pins.gpio8.downgrade_output())?,
+            pin_c: PinDriver::output(peripherals.pins.gpio7.downgrade_output())?,
+            pin_d: PinDriver::output(peripherals.pins.gpio10.downgrade_output())?,
+        },
+    );
+    block_on(async {
+        tubes.selftest(&mut timer, Duration::from_millis(100)).await;
+    });
 
     // Connect WiFi
     let mut wifi = AsyncWifi::wrap(
@@ -74,7 +99,7 @@ fn main() -> anyhow::Result<()> {
             // Wait for toggle switch press
             let direction = toggle_switch.wait_for_press().await;
             log::info!("Pressed {:?}", direction);
-            led.toggle().context("Failed to toggle LED")?;
+            led_wifi.toggle().context("Failed to toggle LED")?;
 
             // Debouncing
             if let Err(e) = timer.after(Duration::from_millis(100)).await {
