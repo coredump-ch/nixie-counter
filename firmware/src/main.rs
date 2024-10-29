@@ -1,3 +1,6 @@
+use std::time::Duration;
+
+use anyhow::Context;
 use embedded_svc::{
     http::client::Client as HttpClient,
     wifi::{AuthMethod, ClientConfiguration, Configuration},
@@ -5,7 +8,7 @@ use embedded_svc::{
 use esp_idf_svc::{
     eventloop::EspSystemEventLoop,
     hal::{
-        gpio::{PinDriver, Pull},
+        gpio::{IOPin, PinDriver},
         prelude::Peripherals,
         task::block_on,
     },
@@ -15,6 +18,10 @@ use esp_idf_svc::{
     timer::EspTaskTimerService,
     wifi::{AsyncWifi, EspWifi},
 };
+
+mod toggle_switch;
+
+use toggle_switch::{Direction, ToggleSwitch};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -36,14 +43,22 @@ fn main() -> anyhow::Result<()> {
     let timer_service = EspTaskTimerService::new()?;
     let nvs = EspDefaultNvsPartition::take()?;
 
+    // Create async timer
+    let mut timer = timer_service
+        .timer_async()
+        .context("Failed to initialize timer")?;
+
     // Set up I/O pins
-    let mut button = PinDriver::input(peripherals.pins.gpio9)?;
-    button.set_pull(Pull::Up)?;
+    let mut toggle_switch = ToggleSwitch::new(
+        peripherals.pins.gpio1.downgrade(),
+        peripherals.pins.gpio0.downgrade(),
+    )?;
     let mut led = PinDriver::output(peripherals.pins.gpio3)?;
 
     // Connect WiFi
     let mut wifi = AsyncWifi::wrap(
-        EspWifi::new(peripherals.modem, sys_loop.clone(), Some(nvs))?,
+        EspWifi::new(peripherals.modem, sys_loop.clone(), Some(nvs))
+            .context("Failed to instantiate EspWifi")?,
         sys_loop,
         timer_service,
     )?;
@@ -56,17 +71,28 @@ fn main() -> anyhow::Result<()> {
     let mut count = 0usize;
     block_on(async {
         loop {
-            button.wait_for_low().await?;
+            // Wait for toggle switch press
+            let direction = toggle_switch.wait_for_press().await;
+            log::info!("Pressed {:?}", direction);
+            led.toggle().context("Failed to toggle LED")?;
 
-            log::info!("Pressed");
-            led.toggle()?;
+            // Debouncing
+            if let Err(e) = timer.after(Duration::from_millis(100)).await {
+                log::error!("Failed to wait for debouncing delay: {e}")
+            }
 
-            count += 1;
+            // Update SpaceAPI
+            match direction {
+                Direction::Up => count = count.saturating_add(1),
+                Direction::Down => count = count.saturating_sub(1),
+            }
             update_people_now_present(&mut client, count)?;
 
-            button.wait_for_high().await?;
-
-            log::info!("Released");
+            // Wait for toggle switch release
+            toggle_switch
+                .wait_for_release()
+                .await
+                .context("Failed to wait for toggle release")?;
         }
     })
 }

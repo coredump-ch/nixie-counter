@@ -23,6 +23,7 @@ embassy = ["esp-idf-svc/embassy-sync", "esp-idf-svc/critical-section", "esp-idf-
 
 [dependencies]
 anyhow = "1"
+futures-util = "0.3"
 log = { version = "0.4", default-features = false }
 embedded-svc = { version = "0.28", default-features = false, features = ["std", "alloc"] }
 esp-idf-svc = { version = "0.49", default-features = false, features = ["alloc", "binstart", "std", "native"] }
