@@ -1,25 +1,15 @@
-# `nixie-counter` firmware
+# Nixie Counter Firmware
 
-## Flashing
+Prerequisites:
 
-The easiest way is with cargo-embed:
+- Rust
+- Cargo
+- espflash
+- ldproxy
 
-    $ cargo install cargo-embed
-    $ DEFMT_LOG=debug cargo embed --release
+Flashing:
 
-The nice advantage is that you immediately get RTT support.
-
-Alternatively, if you prefer a simpler command, with cargo-flash:
-
-    $ cargo install cargo-flash
-    $ cargo flash --chip STM32F103C8
-
-## Debugging
-
-Start OpenOCD:
-
-    $ ./openocd.sh
-
-In another window:
-
-    $ cargo run --release
+    export WIFI_SSID=...
+    export WIFI_PASS=...
+    export SPACEAPI_SENSOR_ENDPOINT=http://example.com/sensors/people_now_present/
+    cargo run --release

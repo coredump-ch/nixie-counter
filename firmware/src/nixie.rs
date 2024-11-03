@@ -1,45 +1,40 @@
-use embedded_hal::digital::v2::OutputPin;
+use std::time::Duration;
+
+use esp_idf_svc::{
+    hal::gpio::{AnyOutputPin, Output, PinDriver},
+    timer::EspAsyncTimer,
+};
 
 /// A nixie tube.
 ///
 /// The struct needs to be initialized with the four output pins connected to
 /// the K155ID1 BCD encoder.
-pub struct NixieTube<A, B, C, D> {
-    pub pin_a: A,
-    pub pin_b: B,
-    pub pin_c: C,
-    pub pin_d: D,
+pub struct NixieTube<'a> {
+    pub pin_a: PinDriver<'a, AnyOutputPin, Output>,
+    pub pin_b: PinDriver<'a, AnyOutputPin, Output>,
+    pub pin_c: PinDriver<'a, AnyOutputPin, Output>,
+    pub pin_d: PinDriver<'a, AnyOutputPin, Output>,
 }
 
 /// A pair of two nixie tubes.
-pub struct NixieTubePair<A, B, C, D, E, F, G, H> {
-    left: NixieTube<A, B, C, D>,
-    right: NixieTube<E, F, G, H>,
+pub struct NixieTubePair<'a> {
+    left: NixieTube<'a>,
+    right: NixieTube<'a>,
 }
 
-impl<A, B, C, D, E, F, G, H> NixieTubePair<A, B, C, D, E, F, G, H>
-where
-    A: OutputPin,
-    B: OutputPin,
-    C: OutputPin,
-    D: OutputPin,
-    E: OutputPin,
-    F: OutputPin,
-    G: OutputPin,
-    H: OutputPin,
-{
+impl<'a> NixieTubePair<'a> {
     /// Create a new instance.
-    pub fn new(left: NixieTube<A, B, C, D>, right: NixieTube<E, F, G, H>) -> Self {
+    pub fn new(left: NixieTube<'a>, right: NixieTube<'a>) -> Self {
         Self { left, right }
     }
 
     /// Return mutable reference to the left tube.
-    pub fn left(&mut self) -> &mut NixieTube<A, B, C, D> {
+    pub fn left(&mut self) -> &mut NixieTube<'a> {
         &mut self.left
     }
 
     /// Return mutable reference to the right tube.
-    pub fn right(&mut self) -> &mut NixieTube<E, F, G, H> {
+    pub fn right(&mut self) -> &mut NixieTube<'a> {
         &mut self.right
     }
 
@@ -66,15 +61,19 @@ where
         self.left.off();
         self.right.off();
     }
+
+    /// Show every digit on both tubes, with [`delay`] between each digit.
+    pub async fn selftest(&mut self, timer: &mut EspAsyncTimer, delay: Duration) -> () {
+        for i in 0..=9 {
+            self.left().show_digit(i);
+            self.right().show_digit(i);
+            let _ = timer.after(delay).await;
+        }
+        self.off();
+    }
 }
 
-impl<A, B, C, D> NixieTube<A, B, C, D>
-where
-    A: OutputPin,
-    B: OutputPin,
-    C: OutputPin,
-    D: OutputPin,
-{
+impl<'a> NixieTube<'a> {
     /// Show the specified digit.
     ///
     /// The value must be between 0 and 9. Otherwise, the tube will be turned off.

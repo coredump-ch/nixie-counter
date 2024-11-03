@@ -11,14 +11,10 @@ the [SpaceAPI](https://spaceapi.io/).
 
 **Microcontroller**
 
-The microcontroller is a STM32F103 based "Blue Pill" board. We chose this
-because it's very cheap, very widely available and it can run firmware written
-in [Rust](https://www.rust-lang.org/).
-
-**WiFi**
-
-Data is sent via WiFi using an ESP-01 module. The module is controlled by the
-Blue Pill through AT commands over a serial connection.
+The microcontroller is an ESP32C3 based [M5Stack
+STAMP-C3U](https://docs.m5stack.com/en/core/stamp_c3u) board. We chose this
+because it's quite cheap, has everything built-in that we need and it can run
+firmware written in [Rust](https://www.rust-lang.org/).
 
 **Input Methods**
 
@@ -37,19 +33,19 @@ shifter between the drivers and the microcontroller.
 
 Input power is supplied at 12V. The nixie power supply converts that to ~150V.
 
-Two LDOs convert the 12V to 5V (for the nixie drivers) and 3.3V (for the rest).
+An LDOs convert the 12V to 5V, for both the nixie drivers and the ESP32 module.
 
 **Status LEDs**
 
 There's a yellow LED to indicate that the controller has power and runs the
-correct firmware, and a green LED to indicate whether the ESP-01 module is
-connected to the WiFi or not.
+correct firmware, and a green LED to indicate whether the module is connected
+to the WiFi or not.
 
 ## PCB
 
-![Top](output/v1.1/screenshot-top.png)
+![Top](output/v2.0/screenshot-top.png)
 
-![Bottom](output/v1.1/screenshot-bot.png)
+![Bottom](output/v2.0/screenshot-bot.png)
 
 ## Editing
 

@@ -1,0 +1,26 @@
+M48
+; #@! TF.GenerationSoftware,LibrePCB,LibrePCB,1.1.0
+; #@! TF.CreationDate,2024-11-03T19:05:04
+; #@! TF.ProjectId,Nixie Counter,cfaec193-39cb-4766-881d-db9368be8cff,v2.0
+; #@! TF.Part,Single
+; #@! TF.SameCoordinates
+; #@! TF.FileFunction,NonPlated,1,2,NPTH
+FMAT,2
+METRIC,TZ
+; #@! TA.AperFunction,MechanicalDrill
+T1C2.5
+; #@! TA.AperFunction,MechanicalDrill
+T2C5.0
+%
+G90
+G05
+M71
+T1
+X58.0Y73.66
+X3.0Y3.0
+X97.0Y3.0
+T2
+X40.64Y20.32
+X15.24Y20.32
+T0
+M30
