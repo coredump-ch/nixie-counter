@@ -1,0 +1,27 @@
+G04 --- HEADER BEGIN --- *
+G04 #@! TF.GenerationSoftware,LibrePCB,LibrePCB,1.1.0*
+G04 #@! TF.CreationDate,2024-11-03T19:05:04*
+G04 #@! TF.ProjectId,Nixie Counter,cfaec193-39cb-4766-881d-db9368be8cff,v2.0*
+G04 #@! TF.Part,Single*
+G04 #@! TF.SameCoordinates*
+G04 #@! TF.FileFunction,Paste,Bot*
+G04 #@! TF.FilePolarity,Positive*
+%FSLAX66Y66*%
+%MOMM*%
+G01*
+G75*
+G04 --- HEADER END --- *
+G04 --- APERTURE LIST BEGIN --- *
+%ADD10R,1.4X1.0*%
+G04 --- APERTURE LIST END --- *
+G04 --- BOARD BEGIN --- *
+D10*
+G04 #@! TO.C,R5*
+X50165000Y11050000D03*
+X50165000Y8000000D03*
+G04 #@! TO.C,R4*
+X24765000Y11050000D03*
+X24765000Y8000000D03*
+G04 --- BOARD END --- *
+G04 #@! TF.MD5,99c3c1fdf843707aba3fbacd54c596af*
+M02*

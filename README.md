@@ -43,9 +43,9 @@ to the WiFi or not.
 
 ## PCB
 
-![Top](output/v1.1/screenshot-top.png)
+![Top](output/v2.0/screenshot-top.png)
 
-![Bottom](output/v1.1/screenshot-bot.png)
+![Bottom](output/v2.0/screenshot-bot.png)
 
 ## Editing
 
