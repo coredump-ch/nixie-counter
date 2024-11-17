@@ -113,6 +113,14 @@ fn main() -> anyhow::Result<()> {
             }
             update_people_now_present(&mut client, count)?;
 
+            // Update nixie tubes
+            tubes.show(
+                count
+                    .min(99)
+                    .try_into()
+                    .expect("Failed to convert count to u8"),
+            );
+
             // Wait for toggle switch release
             toggle_switch
                 .wait_for_release()
