@@ -11,7 +11,6 @@ use esp_idf_svc::{
     hal::{
         gpio::{IOPin, OutputPin, PinDriver},
         prelude::Peripherals,
-        reset::restart,
         task::block_on,
     },
     http::client::EspHttpConnection,
@@ -114,8 +113,11 @@ fn main() -> anyhow::Result<()> {
                 Either::First(direction) => direction,
                 // WiFi connection lost, reset module
                 Either::Second(Ok(())) => {
-                    log::error!("WiFi disconnected, restarting");
-                    restart();
+                    log::error!("WiFi disconnected, reconnecting");
+                    led_wifi.set_low().context("Could not disable WiFi LED")?;
+                    connect_wifi(&mut wifi).await?;
+                    led_wifi.set_high().context("Could not enable WiFi LED")?;
+                    continue;
                 }
                 // Error, restart loop
                 Either::Second(Err(e)) => {
