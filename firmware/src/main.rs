@@ -100,7 +100,6 @@ fn main() -> anyhow::Result<()> {
             // Wait for toggle switch press
             let direction = toggle_switch.wait_for_press().await;
             log::info!("Pressed {:?}", direction);
-            led_wifi.toggle().context("Failed to toggle LED")?;
 
             // Debouncing
             if let Err(e) = timer.after(Duration::from_millis(100)).await {
