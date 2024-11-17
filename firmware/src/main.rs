@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use anyhow::Context;
+use embassy_futures::select::{select, Either};
 use embedded_svc::{
     http::client::Client as HttpClient,
     wifi::{AuthMethod, ClientConfiguration, Configuration},
@@ -10,6 +11,7 @@ use esp_idf_svc::{
     hal::{
         gpio::{IOPin, OutputPin, PinDriver},
         prelude::Peripherals,
+        reset::restart,
         task::block_on,
     },
     http::client::EspHttpConnection,
@@ -30,6 +32,8 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const WIFI_SSID: &str = env!("WIFI_SSID");
 const WIFI_PASS: &str = env!("WIFI_PASS");
 const SPACEAPI_SENSOR_ENDPOINT: &str = env!("SPACEAPI_SENSOR_ENDPOINT");
+
+const WIFI_CONNECT_TIMEOUT_S: u64 = 30;
 
 fn main() -> anyhow::Result<()> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -95,10 +99,30 @@ fn main() -> anyhow::Result<()> {
 
     // Main loop
     let mut count = 0usize;
+    log::info!("Starting main loop");
     block_on(async {
         loop {
-            // Wait for toggle switch press
-            let direction = toggle_switch.wait_for_press().await;
+            // Future 1: Wait for toggle switch press
+            let toggle_switch_future = toggle_switch.wait_for_press();
+
+            // Future 2: WiFi disconnect
+            let wifi_disconnect_future = wifi.wifi_wait(|wifi| wifi.is_connected(), None);
+
+            // Wait for toggle switch or connection loss
+            let direction = match select(toggle_switch_future, wifi_disconnect_future).await {
+                // Toggle switch pressed, return direction and carry on
+                Either::First(direction) => direction,
+                // WiFi connection lost, reset module
+                Either::Second(Ok(())) => {
+                    log::error!("WiFi disconnected, restarting");
+                    restart();
+                }
+                // Error, restart loop
+                Either::Second(Err(e)) => {
+                    log::error!("Error while waiting for wifi disconnect: {}", e);
+                    continue;
+                }
+            };
             log::info!("Pressed {:?}", direction);
 
             // Debouncing
@@ -149,10 +173,18 @@ async fn connect_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<
     log::info!("Wifi started");
 
     wifi.connect().await?;
-    log::info!("Wifi connected");
+    log::info!("Wifi connecting");
 
     wifi.wait_netif_up().await?;
     log::info!("Wifi netif up");
+
+    // Wait while WiFi is not connected
+    wifi.wifi_wait(
+        |wifi| wifi.is_connected().map(|connected| !connected),
+        Some(Duration::from_secs(WIFI_CONNECT_TIMEOUT_S)),
+    )
+    .await?;
+    log::info!("Wifi connected");
 
     Ok(())
 }
