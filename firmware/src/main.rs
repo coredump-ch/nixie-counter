@@ -115,7 +115,9 @@ fn main() -> anyhow::Result<()> {
                 Either::Second(Ok(())) => {
                     log::error!("WiFi disconnected, reconnecting");
                     led_wifi.set_low().context("Could not disable WiFi LED")?;
-                    connect_wifi(&mut wifi).await?;
+                    connect_wifi(&mut wifi)
+                        .await
+                        .context("Error while reconnecting to WiFi")?;
                     led_wifi.set_high().context("Could not enable WiFi LED")?;
                     continue;
                 }
@@ -137,15 +139,21 @@ fn main() -> anyhow::Result<()> {
                 Direction::Up => count = count.saturating_add(1),
                 Direction::Down => count = count.saturating_sub(1),
             }
-            update_people_now_present(&mut client, count)?;
-
-            // Update nixie tubes
-            tubes.show(
-                count
-                    .min(99)
-                    .try_into()
-                    .expect("Failed to convert count to u8"),
-            );
+            match update_people_now_present(&mut client, count) {
+                Ok(()) => {
+                    // Success, update nixie tubes
+                    tubes.show(
+                        count
+                            .min(99)
+                            .try_into()
+                            .expect("Failed to convert count to u8"),
+                    );
+                }
+                Err(e) => {
+                    // Failed to update SpaceAPI
+                    log::error!("Failed to update SpaceAPI endpoint: {}", e);
+                }
+            }
 
             // Wait for toggle switch release
             toggle_switch
@@ -171,22 +179,25 @@ async fn connect_wifi(wifi: &mut AsyncWifi<EspWifi<'static>>) -> anyhow::Result<
 
     wifi.set_configuration(&wifi_configuration)?;
 
-    wifi.start().await?;
-    log::info!("Wifi started");
+    wifi.start().await.context("Failed to start WiFi")?;
+    log::info!("WiFi started");
 
-    wifi.connect().await?;
-    log::info!("Wifi connecting");
+    wifi.connect().await.context("Failed to connect WiFi")?;
+    log::info!("WiFi connecting");
 
-    wifi.wait_netif_up().await?;
-    log::info!("Wifi netif up");
+    wifi.wait_netif_up()
+        .await
+        .context("Failed to wait for WiFi netif up")?;
+    log::info!("WiFi netif up");
 
     // Wait while WiFi is not connected
     wifi.wifi_wait(
         |wifi| wifi.is_connected().map(|connected| !connected),
         Some(Duration::from_secs(WIFI_CONNECT_TIMEOUT_S)),
     )
-    .await?;
-    log::info!("Wifi connected");
+    .await
+    .context("Failed to wait for WiFi connected")?;
+    log::info!("WiFi connected");
 
     Ok(())
 }
