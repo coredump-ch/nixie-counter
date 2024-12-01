@@ -672,8 +672,10 @@ dependencies = [
  "esp-println",
  "esp-wifi",
  "futures-util",
+ "heapless",
  "log",
  "smoltcp",
+ "static_cell",
 ]
 
 [[package]]
