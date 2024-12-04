@@ -25,7 +25,9 @@ embassy-net = { version = "0.4.0", features = [
     "udp",
     "dhcpv4",
     "dhcpv4-hostname",
-    "medium-ethernet",
+    "dns",
+    "proto-ipv4",
+    "proto-ipv6",
 ] }
 embassy-time = "0.3.2"
 embedded-hal = { version = "1" }
@@ -47,11 +49,5 @@ esp-wifi = { version = "0.11", features = ["esp32c3", "log", "wifi", "utils"] }
 futures-util = { version = "0.3", default-features = false }
 heapless = "0.8"
 log = { version = "0.4", default-features = false }
-smoltcp = { version = "0.11", default-features = false, features = [
-    "medium-ethernet",
-    "socket-raw",
-    "proto-ipv4",
-    "proto-ipv6",
-    "socket-dhcpv4",
-] }
+reqwless = "0.12"
 static_cell = "2"

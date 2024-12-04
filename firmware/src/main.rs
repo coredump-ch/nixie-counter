@@ -1,10 +1,17 @@
 #![no_std]
 #![no_main]
 
-use core::str::FromStr;
+use core::{fmt::Write, str::FromStr};
 
 use embassy_executor::{task, Spawner};
-use embassy_net::{tcp::TcpSocket, DhcpConfig, Ipv4Address, Stack, StackResources};
+use embassy_net::{
+    dns::DnsSocket,
+    tcp::{
+        client::{TcpClient, TcpClientState},
+        TcpSocket,
+    },
+    DhcpConfig, Ipv4Address, Stack, StackResources,
+};
 use embassy_time::{Duration, Timer};
 use esp_alloc as _;
 use esp_backtrace as _;
@@ -25,13 +32,14 @@ use esp_wifi::{
     },
     EspWifiController,
 };
+use reqwless::{
+    client::HttpClient,
+    request::{Method, Request, RequestBuilder},
+    response::{Status, StatusCode},
+};
 
 mod toggle_switch;
 
-use smoltcp::{
-    iface::{SocketSet, SocketStorage},
-    wire::DhcpOption,
-};
 use toggle_switch::ToggleSwitch;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -42,6 +50,11 @@ const SPACEAPI_SENSOR_ENDPOINT: &str = env!("SPACEAPI_SENSOR_ENDPOINT");
 
 const WIFI_CONNECT_TIMEOUT_S: u64 = 30;
 const DHCP_HOSTNAME: &str = "Nixie Counter";
+
+type EspWifiDevice<'a> = WifiDevice<'a, WifiStaDevice>;
+type EspTcpClient<'a> = TcpClient<'a, EspWifiDevice<'a>, 1>;
+type EspDnsSocket<'a> = DnsSocket<'a, EspWifiDevice<'a>>;
+type EspHttpClient<'a> = HttpClient<'a, EspTcpClient<'a>, EspDnsSocket<'a>>;
 
 // Note: When you are okay with using a nightly compiler it's better to
 // use https://docs.rs/static_cell/2.1.0/static_cell/macro.make_static.html
@@ -107,7 +120,7 @@ async fn main(spawner: Spawner) {
         esp_wifi::init(timg1.timer0, rng.clone(), peripherals.RADIO_CLK,)
             .expect("Failed to init esp_wifi")
     );
-    let (wifi_interface, controller) =
+    let (wifi_interface, wifi_controller) =
         esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, WifiStaDevice).unwrap();
     let wifi_config = ClientConfiguration {
         ssid: WIFI_SSID.try_into().unwrap(),
@@ -139,7 +152,7 @@ async fn main(spawner: Spawner) {
 
     // Spawn connection tasks
     spawner
-        .spawn(connection(controller, wifi_config, led_wifi))
+        .spawn(connection(wifi_controller, wifi_config, led_wifi))
         .ok();
     spawner.spawn(net_task(&stack)).ok();
 
@@ -161,8 +174,14 @@ async fn main(spawner: Spawner) {
         Timer::after(Duration::from_millis(200)).await;
     }
 
+    // Create HTTP client (without TLS support for now)
+    let client_state = TcpClientState::<1, 1024, 1024>::new();
+    let tcp_client = TcpClient::new(&stack, &client_state);
+    let dns = DnsSocket::new(&stack);
+    let http_client = HttpClient::new(&tcp_client, &dns);
+
     // Main loop
-    let mut count = 0usize;
+    let mut count = 0u8;
     log::info!("Starting main loop");
     loop {
         log::info!("Main loop update {}", count);
@@ -384,39 +403,40 @@ async fn wifi_connect(
     Ok(())
 }
 
-///// Update the "people now present" sensor through HTTP.
-//fn update_people_now_present(
-//    client: &mut HttpClient<EspHttpConnection>,
-//    people_count: usize,
-//) -> anyhow::Result<()> {
-//    // Prepare payload
-//    let payload_string = format!("value={people_count}");
-//    let payload = payload_string.as_bytes();
-//
-//    // Prepare headers and URL
-//    let content_length_header = format!("{}", payload.len());
-//    let headers = [
-//        ("content-type", "application/x-www-form-urlencoded"),
-//        ("content-length", &*content_length_header),
-//    ];
-//    let url = SPACEAPI_SENSOR_ENDPOINT;
-//
-//    // Send request
-//    let mut request = client.put(url, &headers)?;
-//    request.write_all(payload)?;
-//    request.flush()?;
-//    log::info!("-> PUT {}", url);
-//    let response = request.submit()?;
-//
-//    // Process response
-//    let status = response.status();
-//    log::info!("<- {}", status);
-//    if status == 204 {
-//        log::info!("Successfully set people now present count to {people_count}");
-//        Ok(())
-//    } else {
-//        anyhow::bail!(format!(
-//            "Received unexpected HTTP {status} when sending status update"
-//        ))
-//    }
-//}
+/// Update the "people now present" sensor through HTTP.
+async fn update_people_now_present<'a>(
+    client: &mut EspHttpClient<'a>,
+    people_count: u8,
+) -> anyhow::Result<()> {
+    // Prepare URL and payload
+    let url = SPACEAPI_SENSOR_ENDPOINT;
+    let mut payload_string = heapless::String::<9>::new();
+    write!(payload_string, "value={people_count}")?;
+    let payload = payload_string.as_bytes();
+
+    // Send request
+    let mut rx_buf = [0; 4096];
+    let mut request = client
+        .request(Method::PUT, url)
+        .await
+        .unwrap()
+        .headers(&[("content-type", "application/x-www-form-urlencoded")])
+        .body(payload);
+    log::info!("-> PUT {}", url);
+    let response = match request.send(&mut rx_buf).await {
+        Ok(resp) => resp,
+        Err(e) => {
+            log::error!("HTTP request error: {:?}", e);
+            anyhow::bail!("HTTP request failed");
+        }
+    };
+
+    // Process response
+    log::info!("<- HTTP {}", response.status.0);
+    if response.status == Status::NoContent {
+        log::info!("Successfully set people now present count to {people_count}");
+        Ok(())
+    } else {
+        anyhow::bail!("Received unexpected HTTP status code when sending status update")
+    }
+}
