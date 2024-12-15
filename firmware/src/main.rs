@@ -6,37 +6,30 @@ use core::{fmt::Write, str::FromStr};
 use embassy_executor::{task, Spawner};
 use embassy_net::{
     dns::DnsSocket,
-    tcp::{
-        client::{TcpClient, TcpClientState},
-        TcpSocket,
-    },
-    DhcpConfig, Ipv4Address, Stack, StackResources,
+    tcp::client::{TcpClient, TcpClientState},
+    DhcpConfig, Stack, StackResources,
 };
 use embassy_time::{Duration, Timer};
 use esp_alloc as _;
 use esp_backtrace as _;
 use esp_hal::{
-    config,
-    delay::Delay,
     gpio::{Level, Output},
-    peripherals,
-    prelude::*,
-    time,
     timer::timg::TimerGroup,
 };
 use esp_println::println;
 use esp_wifi::{
     wifi::{
-        utils::create_network_interface, AccessPointInfo, ClientConfiguration, Configuration,
-        WifiController, WifiDevice, WifiError, WifiEvent, WifiStaDevice, WifiState,
+        ClientConfiguration, Configuration, WifiController, WifiDevice, WifiEvent, WifiStaDevice,
+        WifiState,
     },
     EspWifiController,
 };
 use reqwless::{
     client::HttpClient,
-    request::{Method, Request, RequestBuilder},
-    response::{Status, StatusCode},
+    request::{Method, RequestBuilder},
+    response::Status,
 };
+use toggle_switch::Direction;
 
 mod nixie;
 mod toggle_switch;
@@ -111,10 +104,10 @@ async fn main(spawner: Spawner) {
     log::info!("Starting nixie firmware v{VERSION}...");
 
     // Set up toggle switch
-    let mut toggle_switch = ToggleSwitch::new(peripherals.GPIO0, peripherals.GPIO1);
+    let mut toggle_switch = ToggleSwitch::new(peripherals.GPIO1, peripherals.GPIO0);
 
     // Set up LEDs
-    let led_pwr = Output::new(peripherals.GPIO20, Level::High);
+    let _led_pwr = Output::new(peripherals.GPIO20, Level::High);
     let led_wifi = Output::new(peripherals.GPIO21, Level::Low);
 
     // Initialize tubes
@@ -196,86 +189,51 @@ async fn main(spawner: Spawner) {
     }
 
     // Create HTTP client (without TLS support for now)
-    let client_state = TcpClientState::<1, 1024, 1024>::new();
-    let tcp_client = TcpClient::new(&stack, &client_state);
-    let dns = DnsSocket::new(&stack);
-    let http_client = HttpClient::new(&tcp_client, &dns);
+    let client_state = &*mk_static!(
+        TcpClientState<1, 1024, 1024>,
+        TcpClientState::<1, 1024, 1024>::new()
+    );
+    let tcp_client = &*mk_static!(
+        TcpClient<'static, EspWifiDevice<'static>, 1>,
+        TcpClient::new(&stack, &client_state)
+    );
+    let dns = &*mk_static!(EspDnsSocket<'_>, DnsSocket::new(&stack));
+    let mut http_client = HttpClient::new(&*tcp_client, &*dns);
 
     // Main loop
     let mut count = 0u8;
     log::info!("Starting main loop");
     loop {
-        log::info!("Main loop update {}", count);
-        count += 1;
-        Timer::after(Duration::from_millis(5_000)).await;
-    }
+        // Wait for toggle switch press
+        let direction = toggle_switch.wait_for_press().await;
+        log::info!("Pressed {:?}", direction);
 
-    //    // Main loop
-    //    let mut count = 0usize;
-    //    log::info!("Starting main loop");
-    //    block_on(async {
-    //        loop {
-    //            // Future 1: Wait for toggle switch press
-    //            let toggle_switch_future = toggle_switch.wait_for_press();
-    //
-    //            // Future 2: WiFi disconnect
-    //            let wifi_disconnect_future = wifi.wifi_wait(|wifi| wifi.is_connected(), None);
-    //
-    //            // Wait for toggle switch or connection loss
-    //            let direction = match select(toggle_switch_future, wifi_disconnect_future).await {
-    //                // Toggle switch pressed, return direction and carry on
-    //                Either::First(direction) => direction,
-    //                // WiFi connection lost, reset module
-    //                Either::Second(Ok(())) => {
-    //                    log::error!("WiFi disconnected, reconnecting");
-    //                    led_wifi.set_low().context("Could not disable WiFi LED")?;
-    //                    connect_wifi(&mut wifi)
-    //                        .await
-    //                        .context("Error while reconnecting to WiFi")?;
-    //                    led_wifi.set_high().context("Could not enable WiFi LED")?;
-    //                    continue;
-    //                }
-    //                // Error, restart loop
-    //                Either::Second(Err(e)) => {
-    //                    log::error!("Error while waiting for wifi disconnect: {}", e);
-    //                    continue;
-    //                }
-    //            };
-    //            log::info!("Pressed {:?}", direction);
-    //
-    //            // Debouncing
-    //            if let Err(e) = timer.after(Duration::from_millis(100)).await {
-    //                log::error!("Failed to wait for debouncing delay: {e}")
-    //            }
-    //
-    //            // Update SpaceAPI
-    //            match direction {
-    //                Direction::Up => count = count.saturating_add(1),
-    //                Direction::Down => count = count.saturating_sub(1),
-    //            }
-    //            match update_people_now_present(&mut client, count) {
-    //                Ok(()) => {
-    //                    // Success, update nixie tubes
-    //                    tubes.show(
-    //                        count
-    //                            .min(99)
-    //                            .try_into()
-    //                            .expect("Failed to convert count to u8"),
-    //                    );
-    //                }
-    //                Err(e) => {
-    //                    // Failed to update SpaceAPI
-    //                    log::error!("Failed to update SpaceAPI endpoint: {}", e);
-    //                }
-    //            }
-    //
-    //            // Wait for toggle switch release
-    //            toggle_switch
-    //                .wait_for_release()
-    //                .await
-    //                .context("Failed to wait for toggle release")?;
-    //        }
-    //    })
+        // Debouncing
+        Timer::after(Duration::from_millis(250)).await;
+
+        // Update SpaceAPI
+        match direction {
+            Direction::Up => count = count.saturating_add(1),
+            Direction::Down => count = count.saturating_sub(1),
+        }
+        match update_people_now_present(&mut http_client, count).await {
+            Ok(()) => {
+                // Success, update nixie tubes
+                tubes.show(
+                    count
+                        .min(99)
+                        .try_into()
+                        .expect("Failed to convert count to u8"),
+                );
+            }
+            Err(e) => {
+                // Failed to update SpaceAPI
+                log::error!("Failed to update SpaceAPI endpoint: {}", e)
+            }
+        }
+        // Wait for toggle switch release
+        toggle_switch.wait_for_release().await;
+    }
 }
 
 /// Task: Ensure WiFi connection
@@ -328,63 +286,8 @@ async fn connection(
 
 /// Task: Run network stack
 #[embassy_executor::task]
-async fn net_task(stack: &'static Stack<WifiDevice<'static, WifiStaDevice>>) {
+async fn net_task(stack: &'static Stack<EspWifiDevice<'static>>) {
     stack.run().await
-}
-
-/// Connect to WiFi
-async fn wifi_connect(
-    controller: &mut WifiController<'_>,
-    led_wifi: &mut Output<'_>,
-) -> anyhow::Result<()> {
-    // Start WiFi controller
-    controller.start_async().await.unwrap();
-    match controller.is_started() {
-        Ok(true) => {
-            log::debug!("WiFi controller started")
-        }
-        Ok(false) => {
-            anyhow::bail!("WiFi controller not started");
-        }
-        Err(e) => {
-            anyhow::bail!("WiFi controller not started: {e:?}");
-        }
-    }
-
-    // Scan for WiFi networks
-    log::info!("Start Wifi Scan");
-    let res = controller.scan_n::<10>();
-    if let Ok((res, count)) = res {
-        log::info!("Found {count} networks");
-        for ap in res {
-            log::debug!("{:?}", ap);
-        }
-    }
-
-    // Connect to WiFi
-    log::info!("Connecting to WiFi");
-    if let Err(e) = controller.connect() {
-        anyhow::bail!("Failed to connect to WiFi: {e:?}");
-    }
-    log::info!("Wait until WiFi connection is established...");
-    loop {
-        match controller.is_connected() {
-            Ok(true) => break,
-            Ok(false) => {
-                led_wifi.set_high();
-                Timer::after(Duration::from_millis(50)).await;
-                led_wifi.set_low();
-                Timer::after(Duration::from_millis(450)).await;
-            }
-            Err(e) => {
-                anyhow::bail!("Failed to check for WiFi connection: {e:?}");
-            }
-        }
-    }
-    log::info!("WiFi connected");
-    led_wifi.set_high();
-
-    Ok(())
 }
 
 /// Update the "people now present" sensor through HTTP.
