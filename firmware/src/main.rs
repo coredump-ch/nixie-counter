@@ -298,10 +298,14 @@ async fn update_people_now_present<'a>(
 
     // Send request
     let mut rx_buf = [0; 4096];
-    let mut request = client
-        .request(Method::PUT, url)
-        .await
-        .unwrap()
+    let request_handle = match client.request(Method::PUT, url).await {
+        Ok(handle) => handle,
+        Err(e) => {
+            log::error!("Could not create HTTP request handle: {:?}", e);
+            anyhow::bail!("HTTP request failed");
+        }
+    };
+    let mut request = request_handle
         .headers(&[("content-type", "application/x-www-form-urlencoded")])
         .body(payload);
     log::info!("-> PUT {}", url);
