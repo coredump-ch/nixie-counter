@@ -8,25 +8,57 @@ rust-version = "1.77"
 
 [[bin]]
 name = "firmware"
-harness = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
+harness = false   # do not use the built in cargo test harness -> resolve rust-analyzer errors
 
 [profile.release]
+lto = true
 opt-level = "s"
+incremental = false
+codegen-units = 1
+debug = true        # Note: This is OK, debuginfo isn't flashed to the device!
 
 [profile.dev]
-debug = true # Symbols are nice and they don't increase the size on Flash
+debug = true
 opt-level = "z"
 
-[features]
-default = ["embassy"]
-embassy = ["esp-idf-svc/embassy-sync", "esp-idf-svc/critical-section", "esp-idf-svc/embassy-time-driver"]
+# esp-wifi does not support opt-level "s"
+[profile.dev.package.esp-wifi]
+opt-level = 3
+[profile.release.package.esp-wifi]
+opt-level = 3
 
 [dependencies]
-anyhow = "1"
-futures-util = "0.3"
+anyhow = { version = "1.0.93", default-features = false }
+embassy-executor = { version = "0.6.0", features = ["task-arena-size-12288"] }
+embassy-net = { version = "0.4.0", features = [
+    "tcp",
+    "udp",
+    "dhcpv4",
+    "dhcpv4-hostname",
+    "dns",
+    "proto-ipv4",
+    "proto-ipv6",
+] }
+embassy-sync = "0.6.1"
+embassy-time = "0.3.2"
+embedded-hal = { version = "1" }
+esp-alloc = { version = "0.5" }
+esp-backtrace = { version = "0.14.2", features = [
+    "esp32c3",
+    "panic-handler",
+    "exception-handler",
+    "println",
+] }
+esp-hal = { version = "0.22.0", features = ["esp32c3"] }
+esp-hal-embassy = { version = "0.5", features = [
+    "esp32c3",
+    "log",
+    "integrated-timers",
+] }
+esp-println = { version = "0.12", features = ["esp32c3", "log", "colors"] }
+esp-wifi = { version = "0.11", features = ["esp32c3", "log", "wifi", "utils"] }
+futures-util = { version = "0.3", default-features = false }
+heapless = "0.8"
 log = { version = "0.4", default-features = false }
-embedded-svc = { version = "0.28", default-features = false, features = ["std", "alloc"] }
-esp-idf-svc = { version = "0.49", default-features = false, features = ["alloc", "binstart", "std", "native"] }
-
-[build-dependencies]
-embuild = "0.32.0"
+reqwless = "0.12"
+static_cell = "2"
