@@ -3,11 +3,15 @@
 
 use core::{fmt::Write, str::FromStr};
 
-use embassy_executor::{task, Spawner};
+use embassy_executor::Spawner;
 use embassy_net::{
     dns::DnsSocket,
     tcp::client::{TcpClient, TcpClientState},
     DhcpConfig, Stack, StackResources,
+};
+use embassy_sync::{
+    blocking_mutex::raw::NoopRawMutex,
+    channel::{Channel, Receiver, Sender},
 };
 use embassy_time::{Duration, Timer};
 use esp_alloc as _;
@@ -45,7 +49,6 @@ const WIFI_SSID: &str = env!("WIFI_SSID");
 const WIFI_PASS: &str = env!("WIFI_PASS");
 const SPACEAPI_SENSOR_ENDPOINT: &str = env!("SPACEAPI_SENSOR_ENDPOINT");
 
-const WIFI_CONNECT_TIMEOUT_S: u64 = 30;
 const DHCP_HOSTNAME: &str = "Nixie Counter";
 
 type EspWifiDevice<'a> = WifiDevice<'a, WifiStaDevice>;
@@ -62,26 +65,6 @@ macro_rules! mk_static {
         let x = STATIC_CELL.uninit().write(($val));
         x
     }};
-}
-
-#[task]
-async fn error_blink(mut led1: Output<'static>, mut led2: Output<'static>) {
-    esp_println::println!("Critical error");
-    led1.set_low();
-    led2.set_low();
-    loop {
-        Timer::after(Duration::from_millis(200)).await;
-        led1.toggle();
-        led2.toggle();
-    }
-}
-
-/// Toggle LED every 200ms to indicate a critical error. Never return.
-async fn critical_error(spawner: &Spawner, led1: Output<'static>, led2: Output<'static>) -> ! {
-    spawner.spawn(error_blink(led1, led2)).ok();
-    loop {
-        Timer::after(Duration::from_millis(1_000)).await;
-    }
 }
 
 #[esp_hal_embassy::main]
@@ -163,11 +146,20 @@ async fn main(spawner: Spawner) {
         )
     );
 
+    // Spawn LED control task
+    let led_control_channel = mk_static!(
+        Channel::<NoopRawMutex, LedControlCommand, 3>,
+        Channel::<NoopRawMutex, LedControlCommand, 3>::new()
+    );
+    spawner.must_spawn(led_control_task(led_wifi, led_control_channel.receiver()));
+
     // Spawn connection tasks
-    spawner
-        .spawn(connection(wifi_controller, wifi_config, led_wifi))
-        .ok();
-    spawner.spawn(net_task(stack)).ok();
+    spawner.must_spawn(connection(
+        wifi_controller,
+        wifi_config,
+        led_control_channel.sender(),
+    ));
+    spawner.must_spawn(net_task(stack));
 
     // Wait for link
     loop {
@@ -230,12 +222,44 @@ async fn main(spawner: Spawner) {
     }
 }
 
+enum LedControlCommand {
+    TurnOn,
+    TurnOff,
+    Blink { delay: Duration },
+}
+
+/// Task: Control WiFi LEDs
+#[embassy_executor::task]
+async fn led_control_task(
+    mut led: Output<'static>,
+    command_receiver: Receiver<'static, NoopRawMutex, LedControlCommand, 3>,
+) {
+    log::info!("Start LED connection task");
+    led.set_low();
+    loop {
+        match command_receiver.receive().await {
+            LedControlCommand::TurnOn => led.set_high(),
+            LedControlCommand::TurnOff => led.set_low(),
+            LedControlCommand::Blink { delay } => 'blink: loop {
+                led.toggle();
+                if command_receiver.is_empty() {
+                    // No new command arrives, keep on blinking
+                    Timer::after(delay).await;
+                } else {
+                    // Otherwise, stop and process the command
+                    break 'blink;
+                }
+            },
+        }
+    }
+}
+
 /// Task: Ensure WiFi connection
 #[embassy_executor::task]
 async fn connection(
     mut controller: WifiController<'static>,
     config: ClientConfiguration,
-    mut led_wifi: Output<'static>,
+    led_command_sender: Sender<'static, NoopRawMutex, LedControlCommand, 3>,
 ) {
     log::info!("Start connection task");
     let mut previously_connected = false;
@@ -245,7 +269,7 @@ async fn connection(
         match esp_wifi::wifi::wifi_state() {
             WifiState::StaConnected => {
                 controller.wait_for_event(WifiEvent::StaDisconnected).await;
-                led_wifi.set_low();
+                led_command_sender.send(LedControlCommand::TurnOff).await;
                 if previously_connected {
                     log::info!("WiFi connection lost");
                 }
@@ -253,6 +277,13 @@ async fn connection(
             }
             _ => {}
         }
+
+        // Blink LED to indicate connecting status
+        led_command_sender
+            .send(LedControlCommand::Blink {
+                delay: Duration::from_millis(250),
+            })
+            .await;
 
         // Start WiFi
         if !matches!(controller.is_started(), Ok(true)) {
@@ -268,7 +299,7 @@ async fn connection(
         match controller.connect_async().await {
             Ok(_) => {
                 log::info!("WiFi \"{}\" connected!", config.ssid);
-                led_wifi.set_high();
+                led_command_sender.send(LedControlCommand::TurnOn).await;
                 previously_connected = true;
             }
             Err(e) => {

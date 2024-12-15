@@ -29,6 +29,7 @@ embassy-net = { version = "0.4.0", features = [
     "proto-ipv4",
     "proto-ipv6",
 ] }
+embassy-sync = "0.6.1"
 embassy-time = "0.3.2"
 embedded-hal = { version = "1" }
 esp-alloc = { version = "0.5" }

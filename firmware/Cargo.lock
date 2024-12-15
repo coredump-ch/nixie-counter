@@ -858,6 +858,7 @@ dependencies = [
  "anyhow",
  "embassy-executor",
  "embassy-net",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-hal 1.0.0",
  "esp-alloc",
