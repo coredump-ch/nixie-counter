@@ -131,11 +131,10 @@ async fn main(spawner: Spawner) {
     let timg1 = TimerGroup::new(peripherals.TIMG1);
     let wifi_init = &*mk_static!(
         EspWifiController<'static>,
-        esp_wifi::init(timg1.timer0, rng.clone(), peripherals.RADIO_CLK,)
-            .expect("Failed to init esp_wifi")
+        esp_wifi::init(timg1.timer0, rng, peripherals.RADIO_CLK,).expect("Failed to init esp_wifi")
     );
     let (wifi_interface, wifi_controller) =
-        esp_wifi::wifi::new_with_mode(&wifi_init, peripherals.WIFI, WifiStaDevice).unwrap();
+        esp_wifi::wifi::new_with_mode(wifi_init, peripherals.WIFI, WifiStaDevice).unwrap();
     let wifi_config = ClientConfiguration {
         ssid: WIFI_SSID.try_into().unwrap(),
         password: WIFI_PASS.try_into().unwrap(),
@@ -168,7 +167,7 @@ async fn main(spawner: Spawner) {
     spawner
         .spawn(connection(wifi_controller, wifi_config, led_wifi))
         .ok();
-    spawner.spawn(net_task(&stack)).ok();
+    spawner.spawn(net_task(stack)).ok();
 
     // Wait for link
     loop {
@@ -195,10 +194,10 @@ async fn main(spawner: Spawner) {
     );
     let tcp_client = &*mk_static!(
         TcpClient<'static, EspWifiDevice<'static>, 1>,
-        TcpClient::new(&stack, &client_state)
+        TcpClient::new(stack, client_state)
     );
-    let dns = &*mk_static!(EspDnsSocket<'_>, DnsSocket::new(&stack));
-    let mut http_client = HttpClient::new(&*tcp_client, &*dns);
+    let dns = &*mk_static!(EspDnsSocket<'_>, DnsSocket::new(stack));
+    let mut http_client = HttpClient::new(tcp_client, dns);
 
     // Main loop
     let mut count = 0u8;
@@ -219,12 +218,7 @@ async fn main(spawner: Spawner) {
         match update_people_now_present(&mut http_client, count).await {
             Ok(()) => {
                 // Success, update nixie tubes
-                tubes.show(
-                    count
-                        .min(99)
-                        .try_into()
-                        .expect("Failed to convert count to u8"),
-                );
+                tubes.show(count.min(99));
             }
             Err(e) => {
                 // Failed to update SpaceAPI
@@ -247,6 +241,7 @@ async fn connection(
     let mut previously_connected = false;
     loop {
         // When currently connected, wait until we're no longer connected
+        #[allow(clippy::single_match)]
         match esp_wifi::wifi::wifi_state() {
             WifiState::StaConnected => {
                 controller.wait_for_event(WifiEvent::StaDisconnected).await;

@@ -69,7 +69,7 @@ where
     }
 
     /// Show every digit on both tubes, with [`delay`] between each digit.
-    pub async fn selftest(&mut self, delay: Duration) -> () {
+    pub async fn selftest(&mut self, delay: Duration) {
         for i in 0..=9 {
             self.left().show_digit(i);
             self.right().show_digit(i);

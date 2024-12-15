@@ -48,7 +48,7 @@ impl<'a, 'b> ToggleSwitch<'a, 'b> {
     }
 
     /// Wait until the toggle switch is pressed or down
-    pub async fn wait_for_release(&mut self) -> () {
+    pub async fn wait_for_release(&mut self) {
         let up_released = self.pin_up.wait_for_high();
         let down_released = self.pin_down.wait_for_high();
         join(up_released, down_released).await;
