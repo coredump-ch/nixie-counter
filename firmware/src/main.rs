@@ -203,14 +203,15 @@ async fn main(spawner: Spawner) {
         Timer::after(Duration::from_millis(250)).await;
 
         // Update SpaceAPI
-        match direction {
-            Direction::Up => count = count.saturating_add(1),
-            Direction::Down => count = count.saturating_sub(1),
-        }
-        match update_people_now_present(&mut http_client, count).await {
+        let new_count = match direction {
+            Direction::Up => count.saturating_add(1),
+            Direction::Down => count.saturating_sub(1),
+        };
+        match update_people_now_present(&mut http_client, new_count).await {
             Ok(()) => {
                 // Success, update nixie tubes
-                tubes.show(count.min(99));
+                tubes.show(new_count.min(99));
+                count = new_count
             }
             Err(e) => {
                 // Failed to update SpaceAPI
