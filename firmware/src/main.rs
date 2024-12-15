@@ -38,9 +38,13 @@ use reqwless::{
     response::{Status, StatusCode},
 };
 
+mod nixie;
 mod toggle_switch;
 
-use toggle_switch::ToggleSwitch;
+use crate::{
+    nixie::{NixieTube, NixieTubePair},
+    toggle_switch::ToggleSwitch,
+};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -110,10 +114,27 @@ async fn main(spawner: Spawner) {
     let mut toggle_switch = ToggleSwitch::new(peripherals.GPIO0, peripherals.GPIO1);
 
     // Set up LEDs
-    let mut led_pwr = Output::new(peripherals.GPIO20, Level::High);
-    let mut led_wifi = Output::new(peripherals.GPIO21, Level::Low);
+    let led_pwr = Output::new(peripherals.GPIO20, Level::High);
+    let led_wifi = Output::new(peripherals.GPIO21, Level::Low);
 
-    // Init WiFi
+    // Initialize tubes
+    let mut tubes = NixieTubePair::new(
+        NixieTube {
+            pin_a: Output::new(peripherals.GPIO6, Level::Low),
+            pin_b: Output::new(peripherals.GPIO4, Level::Low),
+            pin_c: Output::new(peripherals.GPIO3, Level::Low),
+            pin_d: Output::new(peripherals.GPIO5, Level::Low),
+        },
+        NixieTube {
+            pin_a: Output::new(peripherals.GPIO9, Level::Low),
+            pin_b: Output::new(peripherals.GPIO8, Level::Low),
+            pin_c: Output::new(peripherals.GPIO7, Level::Low),
+            pin_d: Output::new(peripherals.GPIO10, Level::Low),
+        },
+    );
+    tubes.selftest(Duration::from_millis(100)).await;
+
+    // Initialize WiFi
     let timg1 = TimerGroup::new(peripherals.TIMG1);
     let wifi_init = &*mk_static!(
         EspWifiController<'static>,
@@ -189,43 +210,6 @@ async fn main(spawner: Spawner) {
         Timer::after(Duration::from_millis(5_000)).await;
     }
 
-    //    let peripherals = Peripherals::take()?;
-    //    let sys_loop = EspSystemEventLoop::take()?;
-    //    let timer_service = EspTaskTimerService::new()?;
-    //    let nvs = EspDefaultNvsPartition::take()?;
-    //
-    //    // Initialize tubes
-    //    let mut tubes = NixieTubePair::new(
-    //        NixieTube {
-    //            pin_a: PinDriver::output(peripherals.pins.gpio6.downgrade_output())?,
-    //            pin_b: PinDriver::output(peripherals.pins.gpio4.downgrade_output())?,
-    //            pin_c: PinDriver::output(peripherals.pins.gpio3.downgrade_output())?,
-    //            pin_d: PinDriver::output(peripherals.pins.gpio5.downgrade_output())?,
-    //        },
-    //        NixieTube {
-    //            pin_a: PinDriver::output(peripherals.pins.gpio9.downgrade_output())?,
-    //            pin_b: PinDriver::output(peripherals.pins.gpio8.downgrade_output())?,
-    //            pin_c: PinDriver::output(peripherals.pins.gpio7.downgrade_output())?,
-    //            pin_d: PinDriver::output(peripherals.pins.gpio10.downgrade_output())?,
-    //        },
-    //    );
-    //    block_on(async {
-    //        tubes.selftest(&mut timer, Duration::from_millis(100)).await;
-    //    });
-    //
-    //    // Connect WiFi
-    //    let mut wifi = AsyncWifi::wrap(
-    //        EspWifi::new(peripherals.modem, sys_loop.clone(), Some(nvs))
-    //            .context("Failed to instantiate EspWifi")?,
-    //        sys_loop,
-    //        timer_service,
-    //    )?;
-    //    block_on(connect_wifi(&mut wifi))?;
-    //    led_wifi.set_high().context("Could not enable WiFi LED")?;
-    //
-    //    // Create HTTP client (without TLS support for now)
-    //    let mut client = HttpClient::wrap(EspHttpConnection::new(&Default::default())?);
-    //
     //    // Main loop
     //    let mut count = 0usize;
     //    log::info!("Starting main loop");
