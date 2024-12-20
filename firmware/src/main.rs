@@ -191,6 +191,15 @@ async fn main(spawner: Spawner) {
     let dns = &*mk_static!(EspDnsSocket<'_>, DnsSocket::new(stack));
     let mut http_client = HttpClient::new(tcp_client, dns);
 
+    // Send initial count
+    match update_people_now_present(&mut http_client, 0).await {
+        Ok(()) => log::info!("Sent initial count 0"),
+        Err(e) => log::warn!(
+            "Failed to update SpaceAPI endpoint with initial value: {}",
+            e
+        ),
+    }
+
     // Main loop
     let mut count = 0u8;
     log::info!("Starting main loop");
