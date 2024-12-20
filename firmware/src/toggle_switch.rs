@@ -1,9 +1,9 @@
-use esp_idf_svc::{
-    hal::gpio::{AnyIOPin, Input, PinDriver, Pull},
-    sys::EspError,
+use esp_hal::{
+    gpio::{Input, InputPin},
+    peripheral::Peripheral,
 };
 use futures_util::{
-    future::{select, try_join, Either},
+    future::{join, select, Either},
     pin_mut,
 };
 
@@ -14,18 +14,20 @@ pub enum Direction {
 }
 
 pub struct ToggleSwitch<'a, 'b> {
-    pin_up: PinDriver<'a, AnyIOPin, Input>,
-    pin_down: PinDriver<'b, AnyIOPin, Input>,
+    pin_up: Input<'a>,
+    pin_down: Input<'b>,
 }
 
 impl<'a, 'b> ToggleSwitch<'a, 'b> {
     /// Construct a new [`ToggleSwitch`] and enable internal pull-up resistors for both specified pins.
-    pub fn new(pin_up: AnyIOPin, pin_down: AnyIOPin) -> anyhow::Result<Self> {
-        let mut pin_up = PinDriver::input(pin_up)?;
-        let mut pin_down = PinDriver::input(pin_down)?;
-        pin_up.set_pull(Pull::Up)?;
-        pin_down.set_pull(Pull::Up)?;
-        Ok(Self { pin_up, pin_down })
+    pub fn new(
+        pin_up: impl Peripheral<P = impl InputPin> + 'a,
+        pin_down: impl Peripheral<P = impl InputPin> + 'b,
+    ) -> Self {
+        Self {
+            pin_up: Input::new(pin_up, esp_hal::gpio::Pull::Up),
+            pin_down: Input::new(pin_down, esp_hal::gpio::Pull::Up),
+        }
     }
 
     /// Wait until the toggle switch is pressed or down
@@ -46,16 +48,9 @@ impl<'a, 'b> ToggleSwitch<'a, 'b> {
     }
 
     /// Wait until the toggle switch is pressed or down
-    pub async fn wait_for_release(&mut self) -> anyhow::Result<(), EspError> {
-        // Prepare futures
+    pub async fn wait_for_release(&mut self) {
         let up_released = self.pin_up.wait_for_high();
         let down_released = self.pin_down.wait_for_high();
-
-        // 'select' requires Future + Unpin bounds
-        pin_mut!(up_released);
-        pin_mut!(down_released);
-
-        try_join(up_released, down_released).await?;
-        Ok(())
+        join(up_released, down_released).await;
     }
 }
