@@ -857,6 +857,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "embassy-executor",
+ "embassy-futures",
  "embassy-net",
  "embassy-sync 0.6.1",
  "embassy-time",
@@ -867,7 +868,6 @@ dependencies = [
  "esp-hal-embassy",
  "esp-println",
  "esp-wifi",
- "futures-util",
  "heapless 0.8.0",
  "log",
  "reqwless",

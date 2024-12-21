@@ -4,6 +4,7 @@
 use core::{fmt::Write, str::FromStr};
 
 use embassy_executor::Spawner;
+use embassy_futures::select::{select, Either};
 use embassy_net::{
     dns::DnsSocket,
     tcp::client::{TcpClient, TcpClientState},
@@ -13,7 +14,7 @@ use embassy_sync::{
     blocking_mutex::raw::NoopRawMutex,
     channel::{Channel, Receiver, Sender},
 };
-use embassy_time::{Duration, Timer};
+use embassy_time::{Duration, Ticker, Timer};
 use esp_alloc as _;
 use esp_backtrace as _;
 use esp_hal::{
@@ -50,6 +51,7 @@ const WIFI_PASS: &str = env!("WIFI_PASS");
 const SPACEAPI_SENSOR_ENDPOINT: &str = env!("SPACEAPI_SENSOR_ENDPOINT");
 
 const DHCP_HOSTNAME: &str = "Nixie Counter";
+const PERIODIC_COUNT_UPDATE_INTERVAL: Duration = Duration::from_secs(60);
 
 type EspWifiDevice<'a> = WifiDevice<'a, WifiStaDevice>;
 type EspTcpClient<'a> = TcpClient<'a, EspWifiDevice<'a>, 1>;
@@ -192,20 +194,38 @@ async fn main(spawner: Spawner) {
     let mut http_client = HttpClient::new(tcp_client, dns);
 
     // Send initial count
-    match update_people_now_present(&mut http_client, 0).await {
-        Ok(()) => log::info!("Sent initial count 0"),
-        Err(e) => log::warn!(
-            "Failed to update SpaceAPI endpoint with initial value: {}",
-            e
-        ),
+    if let Err(e) = update_people_now_present(&mut http_client, 0).await {
+        log::warn!("Failed to initialize SpaceAPI endpoint count: {}", e);
     }
 
+    // Periodic update timer
+    let mut periodic_update_interval = Ticker::every(PERIODIC_COUNT_UPDATE_INTERVAL);
+
     // Main loop
-    let mut count = 0u8;
     log::info!("Starting main loop");
+    let mut count = 0u8;
     loop {
+        // Wait for event: Either timer or button press
+        let direction = match select(
+            periodic_update_interval.next(),
+            toggle_switch.wait_for_press(),
+        )
+        .await
+        {
+            Either::First(()) => {
+                // Periodic count update
+                if let Err(e) = update_people_now_present(&mut http_client, count).await {
+                    log::warn!("Failed to refresh SpaceAPI endpoint count: {}", e);
+                }
+                continue;
+            }
+            Either::Second(direction) => {
+                // Toggle switch pressed, carry on with processing
+                direction
+            }
+        };
+
         // Wait for toggle switch press
-        let direction = toggle_switch.wait_for_press().await;
         log::info!("Pressed {:?}", direction);
 
         // Debouncing
@@ -227,6 +247,7 @@ async fn main(spawner: Spawner) {
                 log::error!("Failed to update SpaceAPI endpoint: {}", e)
             }
         }
+
         // Wait for toggle switch release
         toggle_switch.wait_for_release().await;
     }

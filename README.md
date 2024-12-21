@@ -41,6 +41,14 @@ There's a yellow LED to indicate that the controller has power and runs the
 correct firmware, and a green LED to indicate whether the module is connected
 to the WiFi or not.
 
+## Functionality
+
+- When starting, the people count will be set to 0
+- When pressing the toggle switch up or down, the people count will be modified
+  and the nixie tube will show the sent number
+- Every minute, the current count will be re-sent to the server (to allow
+  server-side timeout implementations)
+
 ## PCB
 
 ![Top](output/v2.0/screenshot-top.png)

@@ -1,10 +1,10 @@
+use embassy_futures::{
+    join::join,
+    select::{select, Either},
+};
 use esp_hal::{
     gpio::{Input, InputPin},
     peripheral::Peripheral,
-};
-use futures_util::{
-    future::{join, select, Either},
-    pin_mut,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -36,14 +36,10 @@ impl<'a, 'b> ToggleSwitch<'a, 'b> {
         let up_pressed = self.pin_up.wait_for_low();
         let down_pressed = self.pin_down.wait_for_low();
 
-        // 'select' requires Future + Unpin bounds
-        pin_mut!(up_pressed);
-        pin_mut!(down_pressed);
-
         // Wait for up or down press
         match select(up_pressed, down_pressed).await {
-            Either::Left(_) => Direction::Up,
-            Either::Right(_) => Direction::Down,
+            Either::First(_) => Direction::Up,
+            Either::Second(_) => Direction::Down,
         }
     }
 
