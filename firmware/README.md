@@ -1,13 +1,13 @@
 # Nixie Counter Firmware
 
-Prerequisites:
+## Prerequisites
 
 - Rust
 - Cargo
 - espflash
 - ldproxy
 
-Flashing:
+## Flashing
 
     export WIFI_SSID=...
     export WIFI_PASS=...
