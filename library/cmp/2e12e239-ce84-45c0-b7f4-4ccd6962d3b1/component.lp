@@ -1,6 +1,6 @@
 (librepcb_component 2e12e239-ce84-45c0-b7f4-4ccd6962d3b1
  (name "74141")
- (description "BCD-to-decimal decoder designed to drive gas-filled nixie tubes.")
+ (description "BCD-to-decimal decoder designed to drive gas-filled nixie tubes. Mostly from the former USSR, sold on Ebay and similar sites.\n\nOften sold as SN74141 or K155ID1.")
  (keywords "k155,k155id1,74141")
  (author "Danilo Bargen")
  (version "0.1")

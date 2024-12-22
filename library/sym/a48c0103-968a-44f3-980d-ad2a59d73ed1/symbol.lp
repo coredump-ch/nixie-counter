@@ -1,7 +1,7 @@
 (librepcb_symbol a48c0103-968a-44f3-980d-ad2a59d73ed1
  (name "M5Stack STAMP-C3U")
  (description "Development board with an ESP32-C3 RISC-V MCU.\n\nClock rate: 160 MHz\nRAM: 400 KB\nFlash: 4 MB")
- (keywords "esp32,esp32-c3,riscv,risc-v,stamp")
+ (keywords "k122,c122-b,esp32,esp32-c3,riscv,risc-v")
  (author "Danilo B.")
  (version "0.1")
  (created 2024-10-26T21:59:48Z)

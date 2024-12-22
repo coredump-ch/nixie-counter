@@ -1,7 +1,7 @@
 (librepcb_device df7e0caf-07bf-4022-af4d-ec96e7deb987
  (name "K155ID1")
- (description "Russian BCD-to-decimal decoder designed to drive gas-filled nixie tubes.")
- (keywords "k155,k155id1")
+ (description "Russian BCD-to-decimal decoder designed to drive gas-filled nixie tubes. Mostly sold on Ebay and similar sites.\n\nAlso known as К155ИД1.")
+ (keywords "k155,k155id1,К155ИД1")
  (author "Danilo Bargen")
  (version "0.1")
  (created 2019-09-16T20:40:48Z)
@@ -26,4 +26,6 @@
  (pad e01fde72-ed13-43cd-baa8-fe623311c200 (signal 5af78a47-740e-4b3a-8013-54ca357c770d))
  (pad f44fb00b-f8bb-4cc0-8677-9deaf2cd5093 (signal 538b1180-aece-46d8-9aa2-c8215e678eb5))
  (pad ffe78205-b14d-49bc-9caf-afc0ce4fc120 (signal d4429f55-e0ad-489c-ab19-4c3a55fdf3ed))
+ (part "К155ИД1" (manufacturer "Integral")
+ )
 )
