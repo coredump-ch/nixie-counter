@@ -161,6 +161,7 @@
   (lib_variant b601b267-7049-4661-bf6b-5a801b528b01)
   (name "DS1") (value "IN-12B")
   (lock_assembly false)
+  (attribute "SOURCE" (type string) (unit none) (value "Ebay"))
   (device 92456f46-613c-4de5-8b65-caa103250d5a
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
   )
@@ -301,8 +302,11 @@
   (lib_variant 2adc938d-734b-4247-90ba-1b5e7de747b2)
   (name "U4") (value "{{ MPN or DEVICE or COMPONENT }}")
   (lock_assembly false)
+  (attribute "SOURCE" (type string) (unit none) (value "Ebay"))
   (device df7e0caf-07bf-4022-af4d-ec96e7deb987
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
+   (part "К155ИД1" (manufacturer "Integral")
+   )
   )
   (signal 00ea5541-3e1a-40d6-a76b-0c914e47d88f (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
   (signal 0bd6b7d5-c216-44c1-bb4f-1aa02c8b8f13 (net 53effcab-4cb5-4fbc-b97f-9c4d3626cb00))
@@ -409,6 +413,7 @@
   (lib_variant b601b267-7049-4661-bf6b-5a801b528b01)
   (name "DS2") (value "IN-12B")
   (lock_assembly false)
+  (attribute "SOURCE" (type string) (unit none) (value "Ebay"))
   (device 92456f46-613c-4de5-8b65-caa103250d5a
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
   )
@@ -430,8 +435,11 @@
   (lib_variant 2adc938d-734b-4247-90ba-1b5e7de747b2)
   (name "U3") (value "{{ MPN or DEVICE or COMPONENT }}")
   (lock_assembly false)
+  (attribute "SOURCE" (type string) (unit none) (value "Ebay"))
   (device df7e0caf-07bf-4022-af4d-ec96e7deb987
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
+   (part "К155ИД1" (manufacturer "Integral")
+   )
   )
   (signal 00ea5541-3e1a-40d6-a76b-0c914e47d88f (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
   (signal 0bd6b7d5-c216-44c1-bb4f-1aa02c8b8f13 (net 6ee165d3-dd84-4924-a1bc-ed59e88cf76a))
@@ -491,6 +499,8 @@
   (lock_assembly false)
   (device 3952a3e5-b553-4ab6-b2b4-18baed8ac859
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
+   (part "K122" (manufacturer "M5Stack")
+   )
    (part "C122-B" (manufacturer "M5Stack")
    )
   )
@@ -518,6 +528,8 @@
   (lib_variant 3db8e6c6-c9df-4270-ad31-75eb8648f955)
   (name "U1") (value "{{ DEVICE or COMPONENT }}\nPower Supply")
   (lock_assembly false)
+  (attribute "SOURCE" (type string) (unit none) (value "AliExpress"))
+  (attribute "ALIEXPRESS" (type string) (unit none) (value "https://aliexpress.com/item/32834903717.html"))
   (device 72eb6d28-249d-4106-b3c0-1f6da4a0e225
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
   )

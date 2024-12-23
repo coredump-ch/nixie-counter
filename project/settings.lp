@@ -5,6 +5,8 @@
  (library_norm_order
  )
  (custom_bom_attributes
+  (attribute "SOURCE")
+  (attribute "ALIEXPRESS")
  )
  (default_lock_component_assembly false)
 )
