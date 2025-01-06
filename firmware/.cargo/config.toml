@@ -14,3 +14,6 @@ target = "riscv32imc-unknown-none-elf"
 
 [unstable]
 build-std = ["alloc", "core"]
+
+[env]
+SMOLTCP_DNS_MAX_SERVER_COUNT = "4"
