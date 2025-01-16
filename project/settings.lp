@@ -7,6 +7,7 @@
  (custom_bom_attributes
   (attribute "SOURCE")
   (attribute "ALIEXPRESS")
+  (attribute "DIGIKEY")
  )
  (default_lock_component_assembly false)
 )

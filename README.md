@@ -55,6 +55,11 @@ to the WiFi or not.
 
 ![Bottom](output/v2.0/screenshot-bot.png)
 
+For the BOM, see
+[`output/v2.0/assembly/Nixie_Counter_v2.0_BOM_Std.csv`](output/v2.0/assembly/Nixie_Counter_v2.0_BOM_Std.csv)
+and
+[`output/v2.0/assembly/Nixie_Counter_v2.0_BOM_Std.html`](output/v2.0/assembly/Nixie_Counter_v2.0_BOM_Std.html).
+
 ## Editing
 
 This is a [LibrePCB](https://librepcb.org) project!

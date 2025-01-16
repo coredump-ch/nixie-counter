@@ -2,6 +2,8 @@ Nixie_Counter_v2.0.lppz | 1c6f479f-6985-4844-8cce-86a4b43c83b9
 Nixie_Counter_v2.0.step | a44df3fc-18da-4239-9fec-9082e4abd407
 Nixie_Counter_v2.0_Assembly.pdf | c4e65e5b-ff82-4bb7-bad7-352cc91c9b5c
 Nixie_Counter_v2.0_Schematic.pdf | 760a005f-5ffb-4dcf-81d3-21d278f22c79
+assembly/Nixie_Counter_v2.0_BOM_Std.csv | ec1a2dbf-fec8-4b1c-bb4d-d99b6eaa2709
+assembly/Nixie_Counter_v2.0_BOM_Std.html | 681ff8ee-04e6-4a1f-bd03-a5cd79633255
 gerber/Nixie_Counter_COPPER-BOTTOM.gbr | 8f855289-6016-43dc-bdb8-e6fc43e276dd
 gerber/Nixie_Counter_COPPER-TOP.gbr | 8f855289-6016-43dc-bdb8-e6fc43e276dd
 gerber/Nixie_Counter_DRILLS-NPTH.drl | 8f855289-6016-43dc-bdb8-e6fc43e276dd
