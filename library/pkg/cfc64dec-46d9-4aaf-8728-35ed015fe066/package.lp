@@ -1,14 +1,14 @@
 (librepcb_package cfc64dec-46d9-4aaf-8728-35ed015fe066
- (name "Logo Coredump 3.4mm")
+ (name "LOGO_COREDUMP_3.4mm")
  (description "")
- (keywords "Jessy")
- (author "svg2librepcb,logo,coredump")
+ (keywords "svg2librepcb,logo,coredump")
+ (author "Danilo B.")
  (version "0.1")
  (created 2019-08-14T20:44:37Z)
  (deprecated false)
  (generated_by "")
  (category 1d2630f1-c375-49f0-a0dc-2446735d82f4)
- (assembly_type auto)
+ (assembly_type none)
  (footprint 05635915-8332-49e4-97ac-a5e961972480
   (name "Top Copper")
   (description "")
@@ -1031,5 +1031,26 @@
    (align left center) (position 2.1 0.0) (rotation 0.0)
    (auto_rotate true) (mirror false) (value "{{VALUE}}")
   )
+ )
+ (approved missing_name_text
+  (footprint 05635915-8332-49e4-97ac-a5e961972480)
+ )
+ (approved missing_name_text
+  (footprint 82c6c361-8107-46af-82c6-ade21e9bcaaf)
+ )
+ (approved missing_name_text
+  (footprint acfb4555-fc76-4de4-9e0a-efa43913b590)
+ )
+ (approved unusual_text_layer
+  (footprint 05635915-8332-49e4-97ac-a5e961972480)
+  (text 4a61d486-5aad-4b8c-ab55-f215ac461046)
+ )
+ (approved unusual_text_layer
+  (footprint 82c6c361-8107-46af-82c6-ade21e9bcaaf)
+  (text 2f9542ad-92f9-4228-b505-4bf735af2052)
+ )
+ (approved unusual_text_layer
+  (footprint acfb4555-fc76-4de4-9e0a-efa43913b590)
+  (text 06ac4eab-c46d-496c-bb03-73d6315c065f)
  )
 )
