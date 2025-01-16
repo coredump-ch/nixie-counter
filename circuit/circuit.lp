@@ -164,6 +164,8 @@
   (attribute "SOURCE" (type string) (unit none) (value "Ebay"))
   (device 92456f46-613c-4de5-8b65-caa103250d5a
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
+   (part "IN-12B" (manufacturer "Reflektor")
+   )
   )
   (signal 064145fe-de80-4ad6-bc0d-2f3c069dac12 (net 3deb8e18-4bef-4216-b12a-64894bfa644e))
   (signal 2f8ebee8-9d7e-4fa6-b402-a76e01143945 (net de8bf6f1-9a2c-4096-bba7-d0b6f4b82db9))
@@ -195,7 +197,7 @@
   (attribute "DIGIKEY" (type string) (unit none) (value "311-220CRCT-ND"))
   (device 078650d3-483c-4b9e-a848-b14f1aad2edc
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
-   (part "RC0805FR-07220RL" (manufacturer "")
+   (part "RC0805FR-07220RL" (manufacturer "Yageo")
    )
   )
   (signal 3452d36e-1ce8-4b7c-8e5b-90c2e4929ed8 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
@@ -261,8 +263,11 @@
   (name "R3") (value "{{RESISTANCE}}")
   (lock_assembly false)
   (attribute "RESISTANCE" (type resistance) (unit ohm) (value "0"))
+  (attribute "DIGIKEY" (type string) (unit none) (value "311-0.0ARCT-ND"))
   (device 078650d3-483c-4b9e-a848-b14f1aad2edc
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
+   (part "RC0805JR-070RL" (manufacturer "Yageo")
+   )
   )
   (signal 3452d36e-1ce8-4b7c-8e5b-90c2e4929ed8 (net 590d38fd-33cb-4f54-9c88-75a1d7518313))
   (signal ad623f98-9e73-49c3-9404-f7cfa99d17cd (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
@@ -283,7 +288,7 @@
   (attribute "DIGIKEY" (type string) (unit none) (value "296-21114-1-ND"))
   (device 64407a7b-0979-4c32-a776-5dc53f9d1e8a
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
-   (part "TLV1117-50CDCYR" (manufacturer "")
+   (part "TLV1117-50CDCYR" (manufacturer "Texas Instruments")
    )
   )
   (signal 64f4d07d-edc7-4947-ae00-879e03e04894 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
@@ -344,7 +349,7 @@
   (attribute "DIGIKEY" (type string) (unit none) (value "475-1410-1-ND"))
   (device 7b73f4ec-2798-4254-a07a-26844e606d5b
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
-   (part "LG R971-KN-1" (manufacturer "")
+   (part "LG R971-KN-1" (manufacturer "OSRAM")
    )
   )
   (signal 7b023430-b68f-403a-80b8-c7deb12e7a0c (net 54e823c2-4c34-40e7-acdd-cd525082ef21))
@@ -388,7 +393,7 @@
   (attribute "DIGIKEY" (type string) (unit none) (value "311-270CRCT-ND"))
   (device 078650d3-483c-4b9e-a848-b14f1aad2edc
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
-   (part "RC0805FR-07270RL" (manufacturer "")
+   (part "RC0805FR-07270RL" (manufacturer "Yageo")
    )
   )
   (signal 3452d36e-1ce8-4b7c-8e5b-90c2e4929ed8 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
@@ -416,6 +421,8 @@
   (attribute "SOURCE" (type string) (unit none) (value "Ebay"))
   (device 92456f46-613c-4de5-8b65-caa103250d5a
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
+   (part "IN-12B" (manufacturer "Reflektor")
+   )
   )
   (signal 064145fe-de80-4ad6-bc0d-2f3c069dac12 (net 71dd2b91-bc4f-4596-9c50-5719cf38e285))
   (signal 2f8ebee8-9d7e-4fa6-b402-a76e01143945 (net e645f9dd-3fdf-4707-ac56-434b9d02c663))
@@ -485,8 +492,12 @@
   (lib_variant d960b91a-2744-41fc-ba89-39e8190e421d)
   (name "S1") (value "{{MPN or DEVICE}}")
   (lock_assembly false)
+  (attribute "SOURCE" (type string) (unit none) (value "AliExpress"))
+  (attribute "ALIEXPRESS" (type string) (unit none) (value "https://aliexpress.com/item/33033590581.html"))
   (device ca7ac353-cbf0-40ad-9a86-2a6da38b836c
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
+   (part "T8014A-UHBx" (manufacturer "Salecom")
+   )
   )
   (signal 8560ca39-2ba7-4b3c-8d57-d0f52d64dc6f (net b29b7d3f-bb89-4650-9cce-a3e39e153463))
   (signal c54aa7b2-bd4f-4c58-aa3f-af6ec5f87aeb (net eb137732-6377-4ebb-a115-431be062c7f8))
@@ -586,7 +597,7 @@
   (attribute "DIGIKEY" (type string) (unit none) (value "475-2560-1-ND"))
   (device 984532c8-9d78-4976-a843-207d08b543e3
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
-   (part "LY R976-PS-36" (manufacturer "")
+   (part "LY R976-PS-36" (manufacturer "OSRAM")
    )
   )
   (signal 7b023430-b68f-403a-80b8-c7deb12e7a0c (net 027c1923-5285-470f-bedd-0d34c657a548))
@@ -601,7 +612,7 @@
   (attribute "DIGIKEY" (type string) (unit none) (value "478-8237-1-ND"))
   (device 86ae5c09-9885-436b-b8cf-361de12f29bf
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
-   (part "F931C106MAA" (manufacturer "")
+   (part "F931C106MAA" (manufacturer "AVX")
    )
   )
   (signal af3ffca8-0085-4edb-a775-fcb759f63411 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
@@ -617,7 +628,7 @@
   (attribute "DIGIKEY" (type string) (unit none) (value "478-8152-1-ND"))
   (device 86ae5c09-9885-436b-b8cf-361de12f29bf
    (variant cfa531aa-b3cb-419d-b2da-c2ac46cb586b)
-   (part "F930J107KAA" (manufacturer "")
+   (part "F930J107KAA" (manufacturer "AVX")
    )
   )
   (signal af3ffca8-0085-4edb-a775-fcb759f63411 (net 83787a1b-eeef-4ee1-8e2f-6b7dc5c0b073))
